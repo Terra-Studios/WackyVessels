@@ -11,7 +11,7 @@ public class WackyVesselsScreenHandlerRegistry {
     private static final Identifier identifier = new Identifier(Constants.MOD_ID, "vessel_helm_gui");
 
     public static ScreenHandlerType<? extends VesselHelmScreenHandler> VESSEL_HELM_SCREEN =
-            ScreenHandlerRegistry.registerSimple(identifier, VesselHelmScreenHandler::new);
+            ScreenHandlerRegistry.registerExtended(identifier, VesselHelmScreenHandler::new);
 
 
     public static void register() {

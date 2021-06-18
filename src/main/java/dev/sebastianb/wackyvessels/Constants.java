@@ -12,4 +12,12 @@ public class Constants {
         public static String VESSEL_HELM = "vessel_helm";
     }
 
+    public static class Text {
+        public static class Screen {
+            public static String ASSEMBLY_BUTTON = MOD_ID + ".gui.helm.assembly";
+            public static String DISASSEMBLY_BUTTON = MOD_ID + ".gui.helm.disassembly";
+
+        }
+    }
+
 }
