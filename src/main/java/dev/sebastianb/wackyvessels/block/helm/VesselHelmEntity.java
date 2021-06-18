@@ -17,7 +17,6 @@ public class VesselHelmEntity extends BlockEntity implements NamedScreenHandlerF
 
     public VesselHelmEntity(BlockPos pos, BlockState state) {
         super(WackyVesselsBlockEntities.VESSEL_HELM_ENTITY, pos, state);
-        System.out.println("HI!");
     }
 
     @Override
