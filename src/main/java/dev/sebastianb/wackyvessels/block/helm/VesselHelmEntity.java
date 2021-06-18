@@ -1,5 +1,6 @@
 package dev.sebastianb.wackyvessels.block.helm;
 
+import dev.sebastianb.wackyvessels.client.gui.VesselHelmScreenHandler;
 import dev.sebastianb.wackyvessels.entity.WackyVesselsBlockEntities;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntityType;
@@ -24,10 +25,9 @@ public class VesselHelmEntity extends BlockEntity implements NamedScreenHandlerF
         return LiteralText.EMPTY;
     }
 
-    // TODO: Return new screen handler
     @Nullable
     @Override
     public ScreenHandler createMenu(int syncId, PlayerInventory inv, PlayerEntity player) {
-        return null;
+        return new VesselHelmScreenHandler(syncId, inv);
     }
 }

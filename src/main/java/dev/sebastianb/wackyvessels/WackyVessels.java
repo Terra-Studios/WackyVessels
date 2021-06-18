@@ -3,6 +3,7 @@ package dev.sebastianb.wackyvessels;
 import dev.sebastianb.wackyvessels.block.WackyVesselsBlocks;
 import dev.sebastianb.wackyvessels.entity.WackyVesselsBlockEntities;
 import dev.sebastianb.wackyvessels.entity.WackyVesselsEntityTypes;
+import dev.sebastianb.wackyvessels.registries.WackyVesselsScreenHandlerRegistry;
 import net.fabricmc.api.ModInitializer;
 
 public class WackyVessels implements ModInitializer {
@@ -12,6 +13,8 @@ public class WackyVessels implements ModInitializer {
         WackyVesselsBlocks.register();
         WackyVesselsBlockEntities.register();
         WackyVesselsEntityTypes.register();
+        WackyVesselsScreenHandlerRegistry.register();
+
     }
 
 }
