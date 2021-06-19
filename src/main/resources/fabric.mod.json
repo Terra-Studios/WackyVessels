@@ -8,6 +8,7 @@
   "contact": {},
   "license": "MIT",
   "icon": "assets/wackyvessels/icon.png",
+  "accessWidener" : "wackyvessels.accesswidener",
   "environment": "*",
   "entrypoints": {
     "client": [

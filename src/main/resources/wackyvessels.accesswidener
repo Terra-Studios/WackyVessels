@@ -1,0 +1,3 @@
+accessWidener	v1	 named
+
+mutable    field    net/minecraft/client/gui/screen/ingame/HandledScreen    playerInventoryTitle    Lnet/minecraft/text/Text;

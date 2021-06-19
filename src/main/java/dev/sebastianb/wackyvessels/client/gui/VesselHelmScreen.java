@@ -10,6 +10,7 @@ import net.minecraft.client.gui.screen.ingame.InventoryScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 
@@ -25,6 +26,7 @@ public class VesselHelmScreen extends HandledScreen<VesselHelmScreenHandler> {
     @Override
     protected void init() {
         this.addAssemblyButton();
+        this.playerInventoryTitle = LiteralText.EMPTY;
     }
 
     // will display if the vessel assembles / disassembles
