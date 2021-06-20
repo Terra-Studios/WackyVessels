@@ -1,5 +1,7 @@
 package dev.sebastianb.wackyvessels;
 
+import net.minecraft.util.Identifier;
+
 public class Constants {
 
     public static String MOD_ID = "wackyvessels";
@@ -19,5 +21,10 @@ public class Constants {
 
         }
     }
+
+    public static class Packets {
+        public static Identifier VESSEL_HELM_MOUNT = new Identifier(MOD_ID, "vessel_helm_mount");
+    }
+
 
 }
