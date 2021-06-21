@@ -35,14 +35,11 @@ public class AbstractVesselEntity extends MobEntity {
             if (world.getBlockEntity(pos) != null) {
                 BlockEntity originalBlockEntity = world.getBlockEntity(pos);
                 NbtCompound data = originalBlockEntity.writeNbt(new NbtCompound()); // :concern: I'm just grabbing the NBT and writing new pos values
-                System.out.println("+++");
-                System.out.println(data);
+
                 BlockPos newPos = pos.add(0,10,0);
                 data.putInt("x", newPos.getX());
                 data.putInt("y", newPos.getY());
                 data.putInt("z", newPos.getZ());
-                System.out.println(data);
-                System.out.println("+++");
 
                 world.setBlockState(newPos, originalBlockEntity.getCachedState());
                 BlockEntity newBlockEntity = world.getBlockEntity(newPos);
