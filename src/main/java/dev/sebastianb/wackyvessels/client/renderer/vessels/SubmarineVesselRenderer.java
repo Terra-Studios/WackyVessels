@@ -2,6 +2,7 @@ package dev.sebastianb.wackyvessels.client.renderer.vessels;
 
 import dev.sebastianb.wackyvessels.client.model.vessels.SubmarineVesselModel;
 import dev.sebastianb.wackyvessels.entity.vessels.SubmarineVesselEntity;
+import net.minecraft.client.render.Frustum;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.MobEntityRenderer;
 import net.minecraft.client.texture.SpriteAtlasTexture;
@@ -16,4 +17,10 @@ public class SubmarineVesselRenderer extends MobEntityRenderer<SubmarineVesselEn
     public Identifier getTexture(SubmarineVesselEntity entity) {
         return SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE;
     }
+
+    @Override
+    public boolean shouldRender(SubmarineVesselEntity mobEntity, Frustum frustum, double d, double e, double f) {
+        return true;
+    }
+
 }

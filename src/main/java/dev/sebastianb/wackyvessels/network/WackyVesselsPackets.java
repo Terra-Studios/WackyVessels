@@ -3,24 +3,22 @@ package dev.sebastianb.wackyvessels.network;
 import dev.sebastianb.wackyvessels.Constants;
 import dev.sebastianb.wackyvessels.SebaUtils;
 import dev.sebastianb.wackyvessels.block.WackyVesselsBlocks;
+import dev.sebastianb.wackyvessels.entity.WackyVesselsEntityTypes;
+import dev.sebastianb.wackyvessels.entity.vessels.SubmarineVesselEntity;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.Blocks;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 
 import java.util.HashSet;
 
-@SuppressWarnings("all")
 public class WackyVesselsPackets {
 
-
-
     private static HashSet<BlockPos> vesselBlockPositions = new HashSet<>(); // all BlockPos of vessel to be sent off
-
-
 
     // check if player that sent packet is actually with-in the location of block lmao
     public static void register() {
@@ -38,12 +36,15 @@ public class WackyVesselsPackets {
 
                     vesselBlockPositions.add(vesselHelmLocation); // starting block added to vessel
 
-                    checkSurrondingBlocks(serverWorld, vesselHelmLocation, true);
+                    checkSurroundingBlocks(serverWorld, vesselHelmLocation, true);
 
-                    System.out.println(vesselBlockPositions.size());
+                    SubmarineVesselEntity sub = new SubmarineVesselEntity(WackyVesselsEntityTypes.SUBMARINE_VESSEL, serverWorld);
+                    sub.setPosition(new Vec3d(playerLocation.getX(), playerLocation.getY(), playerLocation.getZ()));
+                    sub.setModelData(vesselBlockPositions, vesselHelmLocation);
+                    serverWorld.spawnEntity(sub);
 
                 } else {
-                    player.sendMessage(new LiteralText("NO CHEATING!!!"), false);
+                    player.sendMessage(new LiteralText("NO CHEATING!!!"), false); // I already handled this but u never know + this line of code is funny
                 }
                 player.closeHandledScreen();
             }));
@@ -51,9 +52,9 @@ public class WackyVesselsPackets {
     }
 
     private static int vesselBlockSize = 0;
-    private static BlockPos blockBeingHandled;
-    private static void checkSurrondingBlocks(ServerWorld world, BlockPos vesselHelmLocation, boolean ranFirstTime) {
-        int blockTimesChecked = 0;
+
+    private static void checkSurroundingBlocks(ServerWorld world, BlockPos vesselHelmLocation, boolean ranFirstTime) {
+        BlockPos blockBeingHandled;
         if (ranFirstTime) {
             blockBeingHandled = vesselHelmLocation;
             vesselBlockPositions.clear();
@@ -70,8 +71,6 @@ public class WackyVesselsPackets {
                 Vec3i currentBlockHandled = SebaUtils.MathUtils.directionToVec3I(pos).add(blockBeingHandled); // Grabs all blocks around the specified block
                 if (!vesselBlockPositions.contains(new BlockPos(currentBlockHandled))) {
                     vesselBlockPositions.add(new BlockPos(currentBlockHandled));
-                    world.setBlockState(new BlockPos(currentBlockHandled), Blocks.DIAMOND_BLOCK.getDefaultState());
-
                     vesselBlockSize++;
                     validAroundBlocks.add(new BlockPos(currentBlockHandled));
                 }
@@ -79,7 +78,7 @@ public class WackyVesselsPackets {
         }
 
         for (BlockPos pos : validAroundBlocks) {
-            checkSurrondingBlocks(world, pos, false);
+            checkSurroundingBlocks(world, pos, false);
         }
     }
 
