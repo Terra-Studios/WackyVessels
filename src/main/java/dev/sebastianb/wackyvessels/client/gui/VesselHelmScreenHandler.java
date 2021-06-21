@@ -29,7 +29,6 @@ public class VesselHelmScreenHandler extends ScreenHandler {
 
     }
 
-
     // used by screen class
     public BlockPos getPos() {
         return pos;
