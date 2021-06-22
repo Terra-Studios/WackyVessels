@@ -40,7 +40,7 @@ public class WackyVesselsPackets {
 
                     SubmarineVesselEntity sub = new SubmarineVesselEntity(WackyVesselsEntityTypes.SUBMARINE_VESSEL, serverWorld);
                     sub.setPosition(new Vec3d(playerLocation.getX(), playerLocation.getY(), playerLocation.getZ()));
-                    sub.setModelData(vesselBlockPositions, vesselHelmLocation);
+                    sub.setSetModelDataAndBlockEntityLocations(vesselBlockPositions, vesselHelmLocation);
                     serverWorld.spawnEntity(sub);
 
                 } else {
