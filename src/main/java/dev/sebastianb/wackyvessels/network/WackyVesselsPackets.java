@@ -41,6 +41,11 @@ public class WackyVesselsPackets {
                     sub.setPosition(SebaUtils.MathUtils.blockPosToVec3d(vesselHelmLocation));
                     sub.setSetModelDataAndBlockEntityLocations(vesselBlockPositions, vesselHelmLocation);
                     serverWorld.spawnEntity(sub);
+                    vesselBlockPositions.add(vesselHelmLocation); // reads the helm and adds again for deletion
+                    for (BlockPos pos : vesselBlockPositions) {
+                        serverWorld.removeBlockEntity(pos);
+                        serverWorld.removeBlock(pos, true);
+                    }
 
                 } else {
                     player.sendMessage(new LiteralText("NO CHEATING!!!"), false); // I already handled this but u never know + this line of code is funny
