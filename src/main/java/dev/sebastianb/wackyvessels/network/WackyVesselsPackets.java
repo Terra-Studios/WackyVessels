@@ -35,11 +35,10 @@ public class WackyVesselsPackets {
                 if (canUseVessel) { // to prevent malicious actors from messing with my clientside cod 😡 😡 😡
 
                     vesselBlockPositions.add(vesselHelmLocation); // starting block added to vessel
-
                     checkSurroundingBlocks(serverWorld, vesselHelmLocation, true);
 
                     SubmarineVesselEntity sub = new SubmarineVesselEntity(WackyVesselsEntityTypes.SUBMARINE_VESSEL, serverWorld);
-                    sub.setPosition(new Vec3d(playerLocation.getX(), playerLocation.getY(), playerLocation.getZ()));
+                    sub.setPosition(SebaUtils.MathUtils.blockPosToVec3d(vesselHelmLocation));
                     sub.setSetModelDataAndBlockEntityLocations(vesselBlockPositions, vesselHelmLocation);
                     serverWorld.spawnEntity(sub);
 
