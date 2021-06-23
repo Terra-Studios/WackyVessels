@@ -88,7 +88,7 @@ public abstract class AbstractVesselEntity extends MobEntity {
 
         @Override
         public Map<BlockPos, BlockEntity> copy(Map<BlockPos, BlockEntity> value) {
-            return new HashMap<>();
+            return new HashMap<>(value);
         }
     });
 
