@@ -2,7 +2,7 @@ package dev.sebastianb.wackyvessels.network;
 
 import dev.sebastianb.wackyvessels.Constants;
 import dev.sebastianb.wackyvessels.SebaUtils;
-import dev.sebastianb.wackyvessels.block.WackyVesselsBlocks;
+import dev.sebastianb.wackyvessels.client.gui.VesselHelmScreenHandler;
 import dev.sebastianb.wackyvessels.entity.WackyVesselsEntityTypes;
 import dev.sebastianb.wackyvessels.entity.vessels.SubmarineVesselEntity;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -11,7 +11,6 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 
 import java.util.HashSet;
@@ -25,14 +24,13 @@ public class WackyVesselsPackets {
         ServerPlayNetworking.registerGlobalReceiver(Constants.Packets.VESSEL_HELM_MOUNT, ((server, player, handler, buf, responseSender) -> {
 
             ServerWorld serverWorld = player.getServerWorld();
-            BlockPos vesselHelmLocation = buf.readBlockPos();
             BlockPos playerLocation = player.getBlockPos();
 
             server.execute((() -> {
                 // FUCK DO STUFF WITH THING
 
-                boolean canUseVessel = (vesselHelmLocation.isWithinDistance(playerLocation, 10)) && (serverWorld.getBlockState(vesselHelmLocation) == WackyVesselsBlocks.VESSEL_HELM.getDefaultState());
-                if (canUseVessel) { // to prevent malicious actors from messing with my clientside cod 😡 😡 😡
+                if (player.currentScreenHandler instanceof VesselHelmScreenHandler && (((VesselHelmScreenHandler) player.currentScreenHandler).getPos().isWithinDistance(playerLocation, 10))) { // to prevent malicious actors from messing with my clientside cod 😡 😡 😡
+                    BlockPos vesselHelmLocation = ((VesselHelmScreenHandler) player.currentScreenHandler).getPos();
 
                     vesselBlockPositions.add(vesselHelmLocation); // starting block added to vessel
                     checkSurroundingBlocks(serverWorld, vesselHelmLocation, true);
@@ -43,14 +41,13 @@ public class WackyVesselsPackets {
                     serverWorld.spawnEntity(sub);
                     vesselBlockPositions.add(vesselHelmLocation); // reads the helm and adds again for deletion
                     for (BlockPos pos : vesselBlockPositions) {
-                        serverWorld.removeBlockEntity(pos);
                         serverWorld.removeBlock(pos, true);
+                        serverWorld.removeBlockEntity(pos);
                     }
-
+                    player.closeHandledScreen();
                 } else {
-                    player.sendMessage(new LiteralText("NO CHEATING!!!"), false); // I already handled this but u never know + this line of code is funny
+                    player.networkHandler.disconnect(new LiteralText("NO CHEATING!!!")); // I already handled this but u never know + this line of code is funny
                 }
-                player.closeHandledScreen();
             }));
         }));
     }
