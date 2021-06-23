@@ -81,7 +81,9 @@ public abstract class AbstractVesselEntity extends MobEntity {
             Map<BlockPos, BlockEntity> map = new HashMap<>(size);
             for (int i = 0; i < size; i++) {
                 BlockPos blockPos = BlockPos.fromLong(buf.readLong());
-                map.put(blockPos, Registry.BLOCK_ENTITY_TYPE.get(new Identifier(buf.readString())).instantiate(blockPos, Blocks.AIR.getDefaultState())); //figure out blocks from type?
+                BlockEntity be = Registry.BLOCK_ENTITY_TYPE.get(new Identifier(buf.readString())).instantiate(blockPos, Blocks.AIR.getDefaultState());
+                be.readNbt(buf.readNbt());
+                map.put(blockPos, be); //figure out blocks from type?
             }
             return map;
         }
