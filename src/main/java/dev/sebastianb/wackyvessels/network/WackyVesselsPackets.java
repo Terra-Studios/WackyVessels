@@ -18,7 +18,7 @@ import java.util.HashSet;
 
 public class WackyVesselsPackets {
 
-    private static HashSet<BlockPos> vesselBlockPositions = new HashSet<>(); // all BlockPos of vessel to be sent off
+    private static final HashSet<BlockPos> vesselBlockPositions = new HashSet<>(); // all BlockPos of vessel to be sent off
 
     // check if player that sent packet is actually with-in the location of block lmao
     public static void register() {

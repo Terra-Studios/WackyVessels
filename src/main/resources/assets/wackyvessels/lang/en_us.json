@@ -1,5 +1,5 @@
 {
   "itemGroup.wackyvessels.blocks": "WackyVessels",
-  "block.wackyvessels.vessel_helm": "Vessel Helm"
-
+  "block.wackyvessels.vessel_helm": "Vessel Helm",
+  "entity.wackyvessels.submarine_vessel": "Submarine Vessel"
 }

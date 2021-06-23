@@ -29,12 +29,12 @@ import java.util.Map;
 /**
  * All new vessels **NEED** to have block model set to display (setModelData). If you want to save block entity contents for future use, use (setBlockEntityLocations)
  */
-public class AbstractVesselEntity extends MobEntity {
+public abstract class AbstractVesselEntity extends MobEntity {
 
     protected HashSet<BlockPos> vesselBlockPositions = new HashSet<>();
 
     protected HashMap<BlockPos, BlockState> relativeVesselBlockPositions = new HashMap<>(); // coords of each block relative to helm
-//    protected HashMap<BlockPos, BlockEntity> relativeVesselBlockEntityPositions = new HashMap<>(); // coords of each block entity (like chests) relative to helm
+    //protected HashMap<BlockPos, BlockEntity> relativeVesselBlockEntityPositions = new HashMap<>(); // coords of each block entity (like chests) relative to helm
 
     protected boolean setModelData = false;
 
