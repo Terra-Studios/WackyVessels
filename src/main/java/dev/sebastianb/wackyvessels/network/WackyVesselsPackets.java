@@ -41,8 +41,8 @@ public class WackyVesselsPackets {
                     serverWorld.spawnEntity(sub);
                     vesselBlockPositions.add(vesselHelmLocation); // reads the helm and adds again for deletion
                     for (BlockPos pos : vesselBlockPositions) {
-                        serverWorld.removeBlock(pos, true);
                         serverWorld.removeBlockEntity(pos);
+                        serverWorld.removeBlock(pos, true);
                     }
                     player.closeHandledScreen();
                 } else {
