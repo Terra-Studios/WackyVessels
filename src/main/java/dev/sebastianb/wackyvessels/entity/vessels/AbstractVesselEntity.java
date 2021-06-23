@@ -4,7 +4,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
@@ -16,11 +15,13 @@ import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
-import org.apache.commons.lang3.SerializationUtils;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -32,45 +33,73 @@ public abstract class AbstractVesselEntity extends MobEntity {
 
     protected HashSet<BlockPos> vesselBlockPositions = new HashSet<>();
 
-    protected HashMap<BlockPos, BlockState> relativeVesselBlockPositions = new HashMap<>(); // coords of each block relative to helm
-    protected HashMap<BlockPos, BlockEntity> relativeVesselBlockEntity = new HashMap<>(); // coords of each block entity (like chests) relative to helm
+    protected Map<BlockPos, BlockState> relativeVesselBlockPositions = new HashMap<>(); // coords of each block relative to helm
+    protected Map<BlockPos, BlockEntity> relativeVesselBlockEntity = new HashMap<>(); // coords of each block entity (like chests) relative to helm
 
     protected boolean setModelData = false;
 
-
-    private static final TrackedData<HashMap<BlockPos, BlockState>> VESSEL_MODEL_DATA = DataTracker.registerData(AbstractVesselEntity.class, new TrackedDataHandler<>() {
+    private static final TrackedData<Map<BlockPos, BlockState>> VESSEL_MODEL_DATA = DataTracker.registerData(AbstractVesselEntity.class, new TrackedDataHandler<>() {
         @Override
-        public void write(PacketByteBuf buf, HashMap<BlockPos, BlockState> value) {
-            buf.writeByteArray(SerializationUtils.serialize(value)); // converts the hashmap
+        public void write(PacketByteBuf buf, Map<BlockPos, BlockState> value) {
+            buf.writeInt(value.size());
+            for (Map.Entry<BlockPos, BlockState> e : value.entrySet()) {
+                buf.writeLong(e.getKey().asLong());
+                buf.writeInt(Block.getRawIdFromState(e.getValue()));
+            }
         }
 
         @Override
-        public HashMap<BlockPos, BlockState> read(PacketByteBuf buf) {
-            return SerializationUtils.deserialize(buf.readByteArray()); // probably reads the hashmap from buf
+        public Map<BlockPos, BlockState> read(PacketByteBuf buf) {
+            int size = buf.readInt();
+            Map<BlockPos, BlockState> map = new HashMap<>(size);
+            for (int i = 0; i < size; i++) {
+                map.put(BlockPos.fromLong(buf.readLong()), Block.getStateFromRawId(buf.readInt()));
+            }
+            return map;
         }
 
         @Override
-        public HashMap<BlockPos, BlockState> copy(HashMap<BlockPos, BlockState> value) {
-            return value;
+        public Map<BlockPos, BlockState> copy(Map<BlockPos, BlockState> value) {
+            return new HashMap<>(value);
+        }
+    });
+
+    private static final TrackedData<Map<BlockPos, BlockEntity>> VESSEL_BLOCK_ENTITY_DATA = DataTracker.registerData(AbstractVesselEntity.class, new TrackedDataHandler<>() {
+        @Override
+        public void write(PacketByteBuf buf, Map<BlockPos, BlockEntity> value) {
+            buf.writeInt(value.size());
+            for (Map.Entry<BlockPos, BlockEntity> e : value.entrySet()) {
+                buf.writeLong(e.getKey().asLong());
+                buf.writeString(Registry.BLOCK_ENTITY_TYPE.getId(e.getValue().getType()).toString());
+                buf.writeNbt(e.getValue().writeNbt(new NbtCompound()));
+            }
+        }
+
+        @Override
+        public Map<BlockPos, BlockEntity> read(PacketByteBuf buf) {
+            int size = buf.readInt();
+            Map<BlockPos, BlockEntity> map = new HashMap<>(size);
+            for (int i = 0; i < size; i++) {
+                BlockPos blockPos = BlockPos.fromLong(buf.readLong());
+                map.put(blockPos, Registry.BLOCK_ENTITY_TYPE.get(new Identifier(buf.readString())).instantiate(blockPos, Blocks.AIR.getDefaultState())); //figure out blocks from type?
+            }
+            return map;
+        }
+
+        @Override
+        public Map<BlockPos, BlockEntity> copy(Map<BlockPos, BlockEntity> value) {
+            return new HashMap<>(value);
         }
     });
 
-    private static final TrackedData<HashMap<BlockPos, BlockEntity>> VESSEL_BLOCK_ENTITY_DATA = DataTracker.registerData(AbstractVesselEntity.class, new TrackedDataHandler<>() {
-        @Override
-        public void write(PacketByteBuf buf, HashMap<BlockPos, BlockEntity> value) {
-            buf.writeByteArray(SerializationUtils.serialize(value)); // converts the hashmap
-        }
+    static {
+        TrackedDataHandlerRegistry.register(VESSEL_MODEL_DATA.getType());
+        TrackedDataHandlerRegistry.register(VESSEL_BLOCK_ENTITY_DATA.getType());
+        assert TrackedDataHandlerRegistry.getId(VESSEL_BLOCK_ENTITY_DATA.getType()) != -1;
+    }
 
-        @Override
-        public HashMap<BlockPos, BlockEntity> read(PacketByteBuf buf) {
-            return SerializationUtils.deserialize(buf.readByteArray()); // probably reads the hashmap from buf
-        }
-
-        @Override
-        public HashMap<BlockPos, BlockEntity> copy(HashMap<BlockPos, BlockEntity> value) {
-            return value;
-        }
-    });
+    public static void initClass() { //need to register ^ somehow it doesent normally??
+    }
 
     @Override
     public void readCustomDataFromNbt(NbtCompound nbt) {
@@ -135,11 +164,6 @@ public abstract class AbstractVesselEntity extends MobEntity {
         dataTracker.startTracking(VESSEL_BLOCK_ENTITY_DATA, new HashMap<>());
     }
 
-    static {
-        TrackedDataHandlerRegistry.register(VESSEL_MODEL_DATA.getType());
-        TrackedDataHandlerRegistry.register(VESSEL_BLOCK_ENTITY_DATA.getType());
-    }
-
     public AbstractVesselEntity(EntityType<? extends MobEntity> entityType, World world) {
         super(entityType, world);
         this.noClip = false;
@@ -170,6 +194,7 @@ public abstract class AbstractVesselEntity extends MobEntity {
             );
         }
         this.setRelativeVesselBlockPositions(this.relativeVesselBlockPositions);
+
         setModelData = true;
     }
 
@@ -246,21 +271,23 @@ public abstract class AbstractVesselEntity extends MobEntity {
         super.takeKnockback(0, 0, 0);
     }
 
-    public HashMap<BlockPos, BlockState> getRelativeVesselBlockPositions() {
+    public Map<BlockPos, BlockState> getRelativeVesselBlockPositions() {
         return dataTracker.get(VESSEL_MODEL_DATA);
     }
 
-    public HashMap<BlockPos, BlockEntity> getRelativeVesselBlockEntity() {
+    public Map<BlockPos, BlockEntity> getRelativeVesselBlockEntity() {
         return dataTracker.get(VESSEL_BLOCK_ENTITY_DATA);
     }
 
-    public void setRelativeVesselBlockPositions(HashMap<BlockPos, BlockState> relativeVesselBlockPositions) {
+    public void setRelativeVesselBlockPositions(Map<BlockPos, BlockState> relativeVesselBlockPositions) {
         this.relativeVesselBlockPositions = relativeVesselBlockPositions;
+        dataTracker.set(VESSEL_MODEL_DATA, Collections.emptyMap()); // maps are mutable
         dataTracker.set(VESSEL_MODEL_DATA, relativeVesselBlockPositions);
     }
 
-    public void setRelativeVesselBlockEntity(HashMap<BlockPos, BlockEntity> relativeVesselBlockEntity) {
+    public void setRelativeVesselBlockEntity(Map<BlockPos, BlockEntity> relativeVesselBlockEntity) {
         this.relativeVesselBlockEntity = relativeVesselBlockEntity;
+        dataTracker.set(VESSEL_BLOCK_ENTITY_DATA, Collections.emptyMap()); // maps are mutable
         dataTracker.set(VESSEL_BLOCK_ENTITY_DATA, relativeVesselBlockEntity);
     }
 
