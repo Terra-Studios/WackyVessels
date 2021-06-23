@@ -1,11 +1,12 @@
 package dev.sebastianb.wackyvessels.entity.vessels;
 
-import dev.sebastianb.wackyvessels.block.WackyVesselsBlocks;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
@@ -18,6 +19,7 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.apache.commons.lang3.SerializationUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -31,7 +33,7 @@ public abstract class AbstractVesselEntity extends MobEntity {
     protected HashSet<BlockPos> vesselBlockPositions = new HashSet<>();
 
     protected HashMap<BlockPos, BlockState> relativeVesselBlockPositions = new HashMap<>(); // coords of each block relative to helm
-    protected HashSet<BlockEntity> relativeVesselBlockEntityPositions = new HashSet<>(); // coords of each block entity (like chests) relative to helm
+    protected HashMap<BlockPos, BlockEntity> relativeVesselBlockEntity = new HashMap<>(); // coords of each block entity (like chests) relative to helm
 
     protected boolean setModelData = false;
 
@@ -53,19 +55,19 @@ public abstract class AbstractVesselEntity extends MobEntity {
         }
     });
 
-    private static final TrackedData<HashSet<BlockEntity>> VESSEL_BLOCK_ENTITY_DATA = DataTracker.registerData(AbstractVesselEntity.class, new TrackedDataHandler<>() {
+    private static final TrackedData<HashMap<BlockPos, BlockEntity>> VESSEL_BLOCK_ENTITY_DATA = DataTracker.registerData(AbstractVesselEntity.class, new TrackedDataHandler<>() {
         @Override
-        public void write(PacketByteBuf buf, HashSet<BlockEntity> value) {
+        public void write(PacketByteBuf buf, HashMap<BlockPos, BlockEntity> value) {
             buf.writeByteArray(SerializationUtils.serialize(value)); // converts the hashmap
         }
 
         @Override
-        public HashSet<BlockEntity> read(PacketByteBuf buf) {
+        public HashMap<BlockPos, BlockEntity> read(PacketByteBuf buf) {
             return SerializationUtils.deserialize(buf.readByteArray()); // probably reads the hashmap from buf
         }
 
         @Override
-        public HashSet<BlockEntity> copy(HashSet<BlockEntity> value) {
+        public HashMap<BlockPos, BlockEntity> copy(HashMap<BlockPos, BlockEntity> value) {
             return value;
         }
     });
@@ -82,13 +84,19 @@ public abstract class AbstractVesselEntity extends MobEntity {
         int relBlockEntitySize = nbt.getInt("RelBlockEntityArraySize");
         for (int i = 1; i <= relBlockEntitySize; i++) {
             NbtCompound data = nbt.getCompound("BlockEntity" + "_" + i);
-            BlockEntity blockEntity = BlockEntity.createFromNbt(NbtHelper.toBlockPos(data), NbtHelper.toBlockState(data), data);
-            System.out.println(blockEntity + " read");
 
-            this.relativeVesselBlockEntityPositions.add(blockEntity);
+            BlockEntity blockEntity = BlockEntity.createFromNbt(NbtHelper.toBlockPos(data), NbtHelper.toBlockState(data), data);
+            blockEntity.readNbt(data);
+            blockEntity.markDirty();
+            this.relativeVesselBlockEntity.put(
+                    new BlockPos(
+                            nbt.getInt("BlockEntityRelPosX" + "_" + i),
+                            nbt.getInt("BlockEntityRelPosY" + "_" + i),
+                            nbt.getInt("BlockEntityRelPosZ" + "_" + i)
+                    ), blockEntity);
         }
         setRelativeVesselBlockPositions(this.relativeVesselBlockPositions);
-        setRelativeVesselBlockEntityPositions(this.relativeVesselBlockEntityPositions);
+        setRelativeVesselBlockEntity(this.relativeVesselBlockEntity);
     }
 
     @Override
@@ -103,11 +111,16 @@ public abstract class AbstractVesselEntity extends MobEntity {
             nbt.putInt("BlockState" + "_" + i, Block.getRawIdFromState(posBlockStateEntry.getValue()));
             i++;
         }
-        nbt.putInt("RelBlockEntityArraySize", this.relativeVesselBlockEntityPositions.size());
+        nbt.putInt("RelBlockEntityArraySize", this.relativeVesselBlockEntity.size());
         i = 1;
-        for (BlockEntity blockEntity : this.relativeVesselBlockEntityPositions) {
-            nbt.put("BlockEntity" + "_" + i, blockEntity.writeNbt(new NbtCompound()));
-            System.out.println(blockEntity + " write");
+        for (Map.Entry<BlockPos, BlockEntity> blockEntityWithRelPos : this.relativeVesselBlockEntity.entrySet()) {
+            NbtCompound data = blockEntityWithRelPos.getValue().writeNbt(new NbtCompound());
+
+            nbt.putInt("BlockEntityRelPosX" + "_" + i, data.getInt("x"));
+            nbt.putInt("BlockEntityRelPosY" + "_" + i, data.getInt("y"));
+            nbt.putInt("BlockEntityRelPosZ" + "_" + i, data.getInt("z"));
+
+            nbt.put("BlockEntity" + "_" + i, data);
             i++;
         }
 
@@ -118,10 +131,8 @@ public abstract class AbstractVesselEntity extends MobEntity {
         super.initDataTracker();
         dataTracker.startTracking(VESSEL_MODEL_DATA, new HashMap<>() {{
                 put(new BlockPos(0,0,0), Blocks.GOLD_BLOCK.getDefaultState()); // init data tracker
-            }});
-        dataTracker.startTracking(VESSEL_BLOCK_ENTITY_DATA, new HashSet<>() {{
-
         }});
+        dataTracker.startTracking(VESSEL_BLOCK_ENTITY_DATA, new HashMap<>());
     }
 
     static {
@@ -133,7 +144,6 @@ public abstract class AbstractVesselEntity extends MobEntity {
         super(entityType, world);
         this.noClip = false;
     }
-
 
     /**
      * Use this method to cover the following methods
@@ -169,7 +179,6 @@ public abstract class AbstractVesselEntity extends MobEntity {
     public void setBlockEntityLocations(HashSet<BlockPos> vesselBlockPositions, BlockPos helmBlockPos) {
         vesselBlockPositions.add(helmBlockPos); // helm isn't added
         for (BlockPos pos : vesselBlockPositions) {
-
             if (world.getBlockEntity(pos) != null) {
                 // save all block entities to entity when reassemble
                 BlockEntity originalBlockEntity = world.getBlockEntity(pos);
@@ -180,45 +189,51 @@ public abstract class AbstractVesselEntity extends MobEntity {
                 data.putInt("z", newPos.getZ());
                 BlockEntity newBlockEntity = BlockEntity.createFromNbt(newPos, originalBlockEntity.getCachedState(), data);
                 newBlockEntity.readNbt(data); // write data to NBT
-                relativeVesselBlockEntityPositions.add(newBlockEntity);
-
-
-
-//                 I need to actually save later. Following code is for testing
-//                world.setBlockState(newPos, originalBlockEntity.getCachedState());
-//                newBlockEntity.markDirty();
+                relativeVesselBlockEntity.put(newBlockEntity.getPos(), newBlockEntity);
+                newBlockEntity.markDirty();
             }
-            this.setRelativeVesselBlockEntityPositions(relativeVesselBlockEntityPositions);
+            this.setRelativeVesselBlockEntity(relativeVesselBlockEntity);
         }
     }
 
     @Override
     public boolean damage(DamageSource source, float amount) {
-        if (0 > this.getHealth() - amount) {
-            this.remove(RemovalReason.DISCARDED);
-            for (Map.Entry<BlockPos, BlockState> m : this.getRelativeVesselBlockPositions().entrySet()) {
-                world.setBlockState(m.getKey().add(this.getBlockPos()), m.getValue());
-            }
-            for (BlockEntity blockEntity : this.getRelativeVesselBlockEntityPositions()) {
-                NbtCompound data = blockEntity.writeNbt(new NbtCompound());
-                BlockPos blockEntityRelPos = new BlockPos(-data.getInt("x"), -data.getInt("y"), -data.getInt("z"));
-                BlockPos newBlockEntityLocation = this.getBlockPos().subtract(blockEntityRelPos);
-                data.putInt("x", newBlockEntityLocation.getX());
-                data.putInt("y", newBlockEntityLocation.getY());
-                data.putInt("z", newBlockEntityLocation.getZ());
-                world.setBlockState(newBlockEntityLocation, blockEntity.getCachedState());
-                BlockEntity newBlockEntity = BlockEntity.createFromNbt(newBlockEntityLocation, blockEntity.getCachedState(), data);
-
-                world.addBlockEntity(newBlockEntity);
-                newBlockEntity.readNbt(data); // write data to NBT
-                System.out.println(newBlockEntity.getPos() + " " + newBlockEntity.getCachedState());
-
-                newBlockEntity.markDirty();
-
-            }
+        if (0 >= this.getHealth() - amount) {
+            tryDisassemble();
         }
 
         return super.damage(source, amount);
+    }
+
+    // just in-case the above method doesn't work
+    @Override
+    protected void onKilledBy(@Nullable LivingEntity adversary) {
+        if (adversary != null)
+            tryDisassemble();
+        super.onKilledBy(adversary);
+    }
+
+    public void tryDisassemble() {
+        this.remove(RemovalReason.DISCARDED);
+        for (Map.Entry<BlockPos, BlockState> m : this.getRelativeVesselBlockPositions().entrySet()) {
+            world.setBlockState(m.getKey().add(this.getBlockPos()), m.getValue());
+        }
+
+        for (Map.Entry<BlockPos, BlockEntity> blockEntityWithRelPos : this.getRelativeVesselBlockEntity().entrySet()) {
+            NbtCompound data = blockEntityWithRelPos.getValue().writeNbt(new NbtCompound());
+            BlockPos blockEntityRelPos = blockEntityWithRelPos.getKey().multiply(-1);
+            BlockPos newBlockEntityLocation = this.getBlockPos().subtract(blockEntityRelPos);
+            data.putInt("x", newBlockEntityLocation.getX());
+            data.putInt("y", newBlockEntityLocation.getY());
+            data.putInt("z", newBlockEntityLocation.getZ());
+
+            BlockEntity newBlockEntity = BlockEntity.createFromNbt(newBlockEntityLocation, blockEntityWithRelPos.getValue().getCachedState(), data);
+            newBlockEntity.readNbt(data); // write data to NBT
+            world.addBlockEntity(newBlockEntity);
+
+            newBlockEntity.markDirty();
+
+        }
     }
 
     @Override
@@ -235,7 +250,7 @@ public abstract class AbstractVesselEntity extends MobEntity {
         return dataTracker.get(VESSEL_MODEL_DATA);
     }
 
-    public HashSet<BlockEntity> getRelativeVesselBlockEntityPositions() {
+    public HashMap<BlockPos, BlockEntity> getRelativeVesselBlockEntity() {
         return dataTracker.get(VESSEL_BLOCK_ENTITY_DATA);
     }
 
@@ -244,9 +259,9 @@ public abstract class AbstractVesselEntity extends MobEntity {
         dataTracker.set(VESSEL_MODEL_DATA, relativeVesselBlockPositions);
     }
 
-    public void setRelativeVesselBlockEntityPositions(HashSet<BlockEntity> relativeVesselBlockEntityPositions) {
-        this.relativeVesselBlockEntityPositions = relativeVesselBlockEntityPositions;
-        dataTracker.set(VESSEL_BLOCK_ENTITY_DATA, relativeVesselBlockEntityPositions);
+    public void setRelativeVesselBlockEntity(HashMap<BlockPos, BlockEntity> relativeVesselBlockEntity) {
+        this.relativeVesselBlockEntity = relativeVesselBlockEntity;
+        dataTracker.set(VESSEL_BLOCK_ENTITY_DATA, relativeVesselBlockEntity);
     }
 
     @Override
