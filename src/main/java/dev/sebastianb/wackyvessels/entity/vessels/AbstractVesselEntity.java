@@ -78,7 +78,6 @@ public abstract class AbstractVesselEntity extends MobEntity {
                     new BlockPos(nbt.getInt("BlockRelPosX" + "_" + i), nbt.getInt("BlockRelPosY" + "_" + i),nbt.getInt("BlockRelPosZ" + "_" + i)),
                     Block.getStateFromRawId(nbt.getInt("BlockState" + "_" + i))
             );
-            System.out.println("");
         }
         int relBlockEntitySize = nbt.getInt("RelBlockEntityArraySize");
         for (int i = 1; i <= relBlockEntitySize; i++) {
@@ -132,7 +131,7 @@ public abstract class AbstractVesselEntity extends MobEntity {
 
     public AbstractVesselEntity(EntityType<? extends MobEntity> entityType, World world) {
         super(entityType, world);
-        this.noClip = true;
+        this.noClip = false;
     }
 
 
@@ -202,11 +201,12 @@ public abstract class AbstractVesselEntity extends MobEntity {
             }
             for (BlockEntity blockEntity : this.getRelativeVesselBlockEntityPositions()) {
                 NbtCompound data = blockEntity.writeNbt(new NbtCompound());
-                BlockPos blockEntityRelPos = new BlockPos(data.getInt("x"), data.getInt("y"), data.getInt("z"));
+                BlockPos blockEntityRelPos = new BlockPos(-data.getInt("x"), -data.getInt("y"), -data.getInt("z"));
                 BlockPos newBlockEntityLocation = this.getBlockPos().subtract(blockEntityRelPos);
                 data.putInt("x", newBlockEntityLocation.getX());
                 data.putInt("y", newBlockEntityLocation.getY());
                 data.putInt("z", newBlockEntityLocation.getZ());
+                world.setBlockState(newBlockEntityLocation, blockEntity.getCachedState());
                 BlockEntity newBlockEntity = BlockEntity.createFromNbt(newBlockEntityLocation, blockEntity.getCachedState(), data);
 
                 world.addBlockEntity(newBlockEntity);
