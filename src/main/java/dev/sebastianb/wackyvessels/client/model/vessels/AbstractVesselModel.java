@@ -21,6 +21,7 @@ public class AbstractVesselModel<T extends AbstractVesselEntity> extends EntityM
         this.entity = entity;
     }
 
+    // TODO: Cull all blocks not visible. Also get stuff like chests rendering properly
     @Override
     public void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
         VertexConsumerProvider vertexConsumerProvider = MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers();

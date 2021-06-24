@@ -63,7 +63,7 @@ public class WackyVesselsPackets {
         } else {
             blockBeingHandled = vesselHelmLocation;
         }
-        if (vesselBlockSize > 1000) { // for some reason, the size is slightly mismatched with the actual value but works lol
+        if (vesselBlockSize > 2000) { // for some reason, the size is slightly mismatched with the actual value but works lol
             return;
         }
         HashSet<BlockPos> validAroundBlocks = new HashSet<>(); // surronding blocks that are valid to be changed

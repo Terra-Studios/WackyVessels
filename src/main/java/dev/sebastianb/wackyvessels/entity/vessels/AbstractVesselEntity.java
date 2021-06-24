@@ -1,5 +1,8 @@
 package dev.sebastianb.wackyvessels.entity.vessels;
 
+import dev.sebastianb.wackyvessels.SebaUtils;
+import dev.sebastianb.wackyvessels.entity.dimensions.EntityDimensionXYZ;
+import dev.sebastianb.wackyvessels.network.WackyVesselsTrackedData;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -17,14 +20,12 @@ import net.minecraft.nbt.NbtHelper;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.*;
 
 /**
  * All new vessels **NEED** to have block model set to display (setModelData). If you want to save block entity contents for future use, use (setBlockEntityLocations)
@@ -38,66 +39,16 @@ public abstract class AbstractVesselEntity extends MobEntity {
 
     protected boolean setModelData = false;
 
-    private static final TrackedData<Map<BlockPos, BlockState>> VESSEL_MODEL_DATA = DataTracker.registerData(AbstractVesselEntity.class, new TrackedDataHandler<>() {
-        @Override
-        public void write(PacketByteBuf buf, Map<BlockPos, BlockState> value) {
-            buf.writeInt(value.size());
-            for (Map.Entry<BlockPos, BlockState> e : value.entrySet()) {
-                buf.writeLong(e.getKey().asLong());
-                buf.writeInt(Block.getRawIdFromState(e.getValue()));
-            }
-        }
 
-        @Override
-        public Map<BlockPos, BlockState> read(PacketByteBuf buf) {
-            int size = buf.readInt();
-            Map<BlockPos, BlockState> map = new HashMap<>(size);
-            for (int i = 0; i < size; i++) {
-                map.put(BlockPos.fromLong(buf.readLong()), Block.getStateFromRawId(buf.readInt()));
-            }
-            return map;
-        }
-
-        @Override
-        public Map<BlockPos, BlockState> copy(Map<BlockPos, BlockState> value) {
-            return new HashMap<>(value);
-        }
-    });
-
-    private static final TrackedData<Map<BlockPos, BlockEntity>> VESSEL_BLOCK_ENTITY_DATA = DataTracker.registerData(AbstractVesselEntity.class, new TrackedDataHandler<>() {
-        @Override
-        public void write(PacketByteBuf buf, Map<BlockPos, BlockEntity> value) {
-            buf.writeInt(value.size());
-            for (Map.Entry<BlockPos, BlockEntity> e : value.entrySet()) {
-                buf.writeLong(e.getKey().asLong());
-                buf.writeString(Registry.BLOCK_ENTITY_TYPE.getId(e.getValue().getType()).toString());
-                buf.writeNbt(e.getValue().writeNbt(new NbtCompound()));
-            }
-        }
-
-        @Override
-        public Map<BlockPos, BlockEntity> read(PacketByteBuf buf) {
-            int size = buf.readInt();
-            Map<BlockPos, BlockEntity> map = new HashMap<>(size);
-            for (int i = 0; i < size; i++) {
-                BlockPos blockPos = BlockPos.fromLong(buf.readLong());
-                BlockEntity be = Registry.BLOCK_ENTITY_TYPE.get(new Identifier(buf.readString())).instantiate(blockPos, Blocks.AIR.getDefaultState());
-                be.readNbt(buf.readNbt());
-                map.put(blockPos, be); //figure out blocks from type?
-            }
-            return map;
-        }
-
-        @Override
-        public Map<BlockPos, BlockEntity> copy(Map<BlockPos, BlockEntity> value) {
-            return new HashMap<>(value);
-        }
-    });
+    private static final TrackedData<Map<BlockPos, BlockState>> VESSEL_MODEL_DATA = WackyVesselsTrackedData.VESSEL_MODEL_DATA;
+    private static final TrackedData<Map<BlockPos, BlockEntity>> VESSEL_BLOCK_ENTITY_DATA = WackyVesselsTrackedData.VESSEL_BLOCK_ENTITY_DATA;
+    private static final TrackedData<EntityDimensionXYZ> ENTITY_DIMENSION_XYZ = WackyVesselsTrackedData.ENTITY_DIMENSION_XYZ;
 
     static {
         TrackedDataHandlerRegistry.register(VESSEL_MODEL_DATA.getType());
         TrackedDataHandlerRegistry.register(VESSEL_BLOCK_ENTITY_DATA.getType());
         assert TrackedDataHandlerRegistry.getId(VESSEL_BLOCK_ENTITY_DATA.getType()) != -1;
+        TrackedDataHandlerRegistry.register(ENTITY_DIMENSION_XYZ.getType());
     }
 
     public static void initClass() { //need to register ^ somehow it doesent normally??
@@ -126,8 +77,12 @@ public abstract class AbstractVesselEntity extends MobEntity {
                             nbt.getInt("BlockEntityRelPosZ" + "_" + i)
                     ), blockEntity);
         }
+        float length = nbt.getFloat("length");
+        float width = nbt.getFloat("width");
+        float height = nbt.getFloat("height");
         setRelativeVesselBlockPositions(this.relativeVesselBlockPositions);
         setRelativeVesselBlockEntity(this.relativeVesselBlockEntity);
+        setEntityDimensionXYZ(new EntityDimensionXYZ(length,width,height, false));
     }
 
     @Override
@@ -155,6 +110,10 @@ public abstract class AbstractVesselEntity extends MobEntity {
             i++;
         }
 
+        nbt.putFloat("length", getDimensions().length);
+        nbt.putFloat("width", getDimensions().width);
+        nbt.putFloat("height", getDimensions().height);
+
     }
 
     @Override
@@ -164,6 +123,7 @@ public abstract class AbstractVesselEntity extends MobEntity {
                 put(new BlockPos(0,0,0), Blocks.GOLD_BLOCK.getDefaultState()); // init data tracker
         }});
         dataTracker.startTracking(VESSEL_BLOCK_ENTITY_DATA, new HashMap<>());
+        dataTracker.startTracking(ENTITY_DIMENSION_XYZ, new EntityDimensionXYZ(1,1,1, false));
     }
 
     public AbstractVesselEntity(EntityType<? extends MobEntity> entityType, World world) {
@@ -177,6 +137,18 @@ public abstract class AbstractVesselEntity extends MobEntity {
     public void setSetModelDataAndBlockEntityLocations(HashSet<BlockPos> vesselBlockPositions, BlockPos helmBlockPos) {
         this.setModelData(vesselBlockPositions, helmBlockPos);
         this.setBlockEntityLocations(vesselBlockPositions, helmBlockPos);
+
+        // let's find the entity size
+        HashSet<BlockPos> relBlockPos = new HashSet<>();
+        for (Map.Entry<BlockPos, BlockState> blockPosBlockStateEntry : getRelativeVesselBlockPositions().entrySet()) {
+            relBlockPos.add(blockPosBlockStateEntry.getKey());
+        }
+        // get the relative furthest and farthest corner
+        BlockPos smallCorner = SebaUtils.MathUtils.getSmallestBlockPos(relBlockPos);
+        BlockPos bigCorner = SebaUtils.MathUtils.getLargestBlockPos(relBlockPos);
+        // TODO: Set EntityDimensionXYZ from this
+//        System.out.println(smallCorner);
+//        System.out.println(bigCorner);
 
     }
 
@@ -281,6 +253,10 @@ public abstract class AbstractVesselEntity extends MobEntity {
         return dataTracker.get(VESSEL_BLOCK_ENTITY_DATA);
     }
 
+    public EntityDimensionXYZ getDimensions() {
+        return dataTracker.get(ENTITY_DIMENSION_XYZ);
+    }
+
     public void setRelativeVesselBlockPositions(Map<BlockPos, BlockState> relativeVesselBlockPositions) {
         this.relativeVesselBlockPositions = relativeVesselBlockPositions;
         dataTracker.set(VESSEL_MODEL_DATA, Collections.emptyMap()); // maps are mutable
@@ -291,6 +267,10 @@ public abstract class AbstractVesselEntity extends MobEntity {
         this.relativeVesselBlockEntity = relativeVesselBlockEntity;
         dataTracker.set(VESSEL_BLOCK_ENTITY_DATA, Collections.emptyMap()); // maps are mutable
         dataTracker.set(VESSEL_BLOCK_ENTITY_DATA, relativeVesselBlockEntity);
+    }
+
+    public void setEntityDimensionXYZ(EntityDimensionXYZ entityDimensionXYZ) {
+        dataTracker.set(ENTITY_DIMENSION_XYZ, entityDimensionXYZ);
     }
 
     @Override
