@@ -143,7 +143,7 @@ public abstract class AbstractVesselEntity extends MobEntity {
         for (Map.Entry<BlockPos, BlockState> blockPosBlockStateEntry : getRelativeVesselBlockPositions().entrySet()) {
             relBlockPos.add(blockPosBlockStateEntry.getKey());
         }
-        // get the relative furthest and farthest corner
+        // get the relative minimum and max corner
         BlockPos smallCorner = SebaUtils.MathUtils.getSmallestBlockPos(relBlockPos);
         BlockPos bigCorner = SebaUtils.MathUtils.getLargestBlockPos(relBlockPos);
         // TODO: Set EntityDimensionXYZ from this
