@@ -149,6 +149,14 @@ public abstract class AbstractVesselEntity extends MobEntity {
         // TODO: Set EntityDimensionXYZ from this
 //        System.out.println(smallCorner);
 //        System.out.println(bigCorner);
+        this.setEntityDimensionXYZ(new EntityDimensionXYZ(
+                bigCorner.getX() - smallCorner.getX() + 1,
+                bigCorner.getY() - smallCorner.getY() + 1,
+                bigCorner.getZ() - smallCorner.getZ() + 1,
+                false
+        ));
+        System.out.println(this.getDimensions());
+
 
     }
 
