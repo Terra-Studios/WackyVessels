@@ -7,21 +7,17 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.entity.EntityDimensions;
+import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
-import net.minecraft.entity.data.TrackedDataHandler;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,6 +28,7 @@ import java.util.*;
  */
 public abstract class AbstractVesselEntity extends MobEntity {
 
+    protected EntityDimensionXYZ entityDimensionXYZ;
     protected HashSet<BlockPos> vesselBlockPositions = new HashSet<>();
 
     protected Map<BlockPos, BlockState> relativeVesselBlockPositions = new HashMap<>(); // coords of each block relative to helm
@@ -82,7 +79,7 @@ public abstract class AbstractVesselEntity extends MobEntity {
         float height = nbt.getFloat("height");
         setRelativeVesselBlockPositions(this.relativeVesselBlockPositions);
         setRelativeVesselBlockEntity(this.relativeVesselBlockEntity);
-        setEntityDimensionXYZ(new EntityDimensionXYZ(length,width,height, false));
+        setEntityDimensionXYZ(new EntityDimensionXYZ(length,height,width, false));
     }
 
     @Override
@@ -110,9 +107,9 @@ public abstract class AbstractVesselEntity extends MobEntity {
             i++;
         }
 
-        nbt.putFloat("length", getDimensions().length);
-        nbt.putFloat("width", getDimensions().width);
-        nbt.putFloat("height", getDimensions().height);
+        nbt.putFloat("length", this.entityDimensionXYZ.length);
+        nbt.putFloat("width", this.entityDimensionXYZ.width);
+        nbt.putFloat("height", this.entityDimensionXYZ.height);
 
     }
 
@@ -123,7 +120,14 @@ public abstract class AbstractVesselEntity extends MobEntity {
                 put(new BlockPos(0,0,0), Blocks.GOLD_BLOCK.getDefaultState()); // init data tracker
         }});
         dataTracker.startTracking(VESSEL_BLOCK_ENTITY_DATA, new HashMap<>());
-        dataTracker.startTracking(ENTITY_DIMENSION_XYZ, new EntityDimensionXYZ(1,1,1, false));
+        dataTracker.startTracking(ENTITY_DIMENSION_XYZ, new EntityDimensionXYZ(2,1,2, false));
+    }
+
+    @Override
+    public void onTrackedDataSet(TrackedData<?> data) {
+        if (ENTITY_DIMENSION_XYZ.equals(data)) {
+            dimensions = getDataTracker().get(ENTITY_DIMENSION_XYZ);
+        }
     }
 
     public AbstractVesselEntity(EntityType<? extends MobEntity> entityType, World world) {
@@ -146,16 +150,14 @@ public abstract class AbstractVesselEntity extends MobEntity {
         // get the relative minimum and max corner
         BlockPos smallCorner = SebaUtils.MathUtils.getSmallestBlockPos(relBlockPos);
         BlockPos bigCorner = SebaUtils.MathUtils.getLargestBlockPos(relBlockPos);
-        // TODO: Set EntityDimensionXYZ from this
-//        System.out.println(smallCorner);
-//        System.out.println(bigCorner);
+
+        // set dimensions of vessel
         this.setEntityDimensionXYZ(new EntityDimensionXYZ(
                 bigCorner.getX() - smallCorner.getX() + 1,
                 bigCorner.getY() - smallCorner.getY() + 1,
                 bigCorner.getZ() - smallCorner.getZ() + 1,
                 false
         ));
-        System.out.println(this.getDimensions());
 
 
     }
@@ -261,7 +263,14 @@ public abstract class AbstractVesselEntity extends MobEntity {
         return dataTracker.get(VESSEL_BLOCK_ENTITY_DATA);
     }
 
-    public EntityDimensionXYZ getDimensions() {
+    @Override
+    public EntityDimensions getDimensions(EntityPose pose) {
+        return getDataTracker().get(ENTITY_DIMENSION_XYZ);
+    }
+
+
+
+    public EntityDimensionXYZ getDimensionsXYZ() {
         return dataTracker.get(ENTITY_DIMENSION_XYZ);
     }
 
@@ -278,6 +287,7 @@ public abstract class AbstractVesselEntity extends MobEntity {
     }
 
     public void setEntityDimensionXYZ(EntityDimensionXYZ entityDimensionXYZ) {
+        this.entityDimensionXYZ = entityDimensionXYZ;
         dataTracker.set(ENTITY_DIMENSION_XYZ, entityDimensionXYZ);
     }
 

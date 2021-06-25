@@ -1,6 +1,7 @@
 package dev.sebastianb.wackyvessels.entity;
 
 import dev.sebastianb.wackyvessels.Constants;
+import dev.sebastianb.wackyvessels.entity.dimensions.EntityDimensionXYZ;
 import dev.sebastianb.wackyvessels.entity.vessels.SubmarineVesselEntity;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
@@ -17,7 +18,7 @@ public class WackyVesselsEntityTypes {
             Registry.ENTITY_TYPE,
             new Identifier(Constants.MOD_ID, Constants.Entity.SUBMARINE_VESSEL),
             FabricEntityTypeBuilder.create(SpawnGroup.MISC, SubmarineVesselEntity::new)
-                    .dimensions(EntityDimensions.changing(2, 1)).trackRangeBlocks(100).build()
+                    .dimensions(EntityDimensionXYZ.changing(2, 1)).trackRangeBlocks(100).build()
 
     );
 

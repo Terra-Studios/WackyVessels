@@ -17,4 +17,15 @@ public class EntityDimensionXYZ extends EntityDimensions {
         return String.format("EntityDimensionXYZ: X = %s, Y = %s, Z = %s, Is fixed = %s", length, height, width, fixed);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof EntityDimensionXYZ that)) return false;
+
+        if (Float.compare(that.length, length) != 0) return false;
+        if (Float.compare(that.width, width) != 0) return false;
+        if (Float.compare(that.height, height) != 0) return false;
+        return fixed == that.fixed;
+    }
+
 }
