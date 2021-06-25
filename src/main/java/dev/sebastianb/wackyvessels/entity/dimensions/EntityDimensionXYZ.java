@@ -17,6 +17,7 @@ public class EntityDimensionXYZ extends EntityDimensions {
         return String.format("EntityDimensionXYZ: X = %s, Y = %s, Z = %s, Is fixed = %s", length, height, width, fixed);
     }
 
+    // lmao yonked this specific method from the worldshell mod
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

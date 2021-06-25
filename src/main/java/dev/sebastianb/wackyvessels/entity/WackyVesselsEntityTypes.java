@@ -18,7 +18,7 @@ public class WackyVesselsEntityTypes {
             Registry.ENTITY_TYPE,
             new Identifier(Constants.MOD_ID, Constants.Entity.SUBMARINE_VESSEL),
             FabricEntityTypeBuilder.create(SpawnGroup.MISC, SubmarineVesselEntity::new)
-                    .dimensions(EntityDimensionXYZ.changing(2, 1)).trackRangeBlocks(100).build()
+                    .dimensions(EntityDimensionXYZ.changing(1, 1)).trackRangeBlocks(100).trackedUpdateRate(1).build()
 
     );
 

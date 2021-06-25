@@ -120,7 +120,7 @@ public abstract class AbstractVesselEntity extends MobEntity {
                 put(new BlockPos(0,0,0), Blocks.GOLD_BLOCK.getDefaultState()); // init data tracker
         }});
         dataTracker.startTracking(VESSEL_BLOCK_ENTITY_DATA, new HashMap<>());
-        dataTracker.startTracking(ENTITY_DIMENSION_XYZ, new EntityDimensionXYZ(2,1,2, false));
+        dataTracker.startTracking(ENTITY_DIMENSION_XYZ, new EntityDimensionXYZ(1,1,1, false));
     }
 
     @Override
@@ -287,6 +287,7 @@ public abstract class AbstractVesselEntity extends MobEntity {
     }
 
     public void setEntityDimensionXYZ(EntityDimensionXYZ entityDimensionXYZ) {
+        this.dimensions = entityDimensionXYZ;
         this.entityDimensionXYZ = entityDimensionXYZ;
         dataTracker.set(ENTITY_DIMENSION_XYZ, entityDimensionXYZ);
     }
