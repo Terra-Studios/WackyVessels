@@ -13,7 +13,10 @@ public class MixinBox {
     // useful method to cancel interactions between all blocks. We'll assume to use our own
     @Inject(method = "intersects(Lnet/minecraft/util/math/Box;)Z", at = @At("HEAD"), cancellable = true)
     private void intersects(Box box, CallbackInfoReturnable<Boolean> cir) {
-        if (box instanceof VesselBoxDelegate) // doesn't work rn but I wanna cancel vanillas system for our own
+        if (box instanceof VesselBoxDelegate) {
+            // doesn't work rn but I wanna cancel vanillas system for our own
             cir.setReturnValue(false);
+
+        }
     }
 }

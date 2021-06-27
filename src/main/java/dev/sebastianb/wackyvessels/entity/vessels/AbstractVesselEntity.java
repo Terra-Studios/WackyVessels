@@ -8,19 +8,23 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.entity.EntityDimensions;
-import net.minecraft.entity.EntityPose;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.*;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.MobEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
+import net.minecraft.network.Packet;
+import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraft.world.entity.EntityChangeListener;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -28,7 +32,7 @@ import java.util.*;
 /**
  * All new vessels **NEED** to have block model set to display (setModelData). If you want to save block entity contents for future use, use (setBlockEntityLocations)
  */
-public abstract class AbstractVesselEntity extends MobEntity {
+public abstract class AbstractVesselEntity extends Entity {
 
     protected EntityDimensionXYZ entityDimensionXYZ;
     protected HashSet<BlockPos> vesselBlockPositions = new HashSet<>();
@@ -117,7 +121,7 @@ public abstract class AbstractVesselEntity extends MobEntity {
 
     @Override
     protected void initDataTracker() {
-        super.initDataTracker();
+//        super.initDataTracker();
         dataTracker.startTracking(VESSEL_MODEL_DATA, new HashMap<>() {{
                 put(new BlockPos(0,0,0), Blocks.GOLD_BLOCK.getDefaultState()); // init data tracker
         }});
@@ -132,7 +136,12 @@ public abstract class AbstractVesselEntity extends MobEntity {
         }
     }
 
-    public AbstractVesselEntity(EntityType<? extends MobEntity> entityType, World world) {
+    @Override
+    public Packet<?> createSpawnPacket() {
+        return new EntitySpawnS2CPacket(this);
+    }
+
+    public AbstractVesselEntity(EntityType<SubmarineVesselEntity> entityType, World world) { // TODO: better abstract this
         super(entityType, world);
         this.noClip = false;
     }
@@ -161,7 +170,6 @@ public abstract class AbstractVesselEntity extends MobEntity {
                 bigCorner.getZ() - smallCorner.getZ() + 1,
                 false
         ));
-
 
     }
 
@@ -255,20 +263,18 @@ public abstract class AbstractVesselEntity extends MobEntity {
 
     @Override
     public boolean damage(DamageSource source, float amount) {
-        if (0 >= this.getHealth() - amount) {
-            tryDisassemble();
-        }
+        tryDisassemble();
 
         return super.damage(source, amount);
     }
 
     // just in-case the above method doesn't work
-    @Override
-    protected void onKilledBy(@Nullable LivingEntity adversary) {
-        if (adversary != null)
-            tryDisassemble();
-        super.onKilledBy(adversary);
-    }
+//    @Override
+//    protected void onKilledBy(@Nullable LivingEntity adversary) {
+//        if (adversary != null)
+//            tryDisassemble();
+//        super.onKilledBy(adversary);
+//    }
 
     @Override
     public boolean hasNoGravity() {
@@ -276,8 +282,15 @@ public abstract class AbstractVesselEntity extends MobEntity {
     }
 
     @Override
-    public void takeKnockback(double strength, double x, double z) {
-        super.takeKnockback(0, 0, 0);
+    public void tick() {
+        super.tick();
+        for (PlayerEntity p : world.getPlayers()) {
+            if (p.getBlockPos().isWithinDistance(this.getBlockPos(), 5)) {
+                if (p.handSwinging) {
+                    tryDisassemble(); // test method to disassemble
+                }
+            }
+        }
     }
 
     public Map<BlockPos, BlockState> getRelativeVesselBlockPositions() {
@@ -315,8 +328,8 @@ public abstract class AbstractVesselEntity extends MobEntity {
         dataTracker.set(ENTITY_DIMENSION_XYZ, entityDimensionXYZ);
     }
 
-    @Override
-    public boolean cannotDespawn() {
-        return true;
-    }
+//    @Override
+//    public boolean cannotDespawn() {
+//        return true;
+//    }
 }

@@ -12,7 +12,9 @@ public class VesselBoxDelegate extends Box {
         super(box.minX, box.minY, box.minZ, box.maxX, box.maxY, box.maxZ);
     }
 
-    public VesselBoxDelegate(BlockPos pos1, BlockPos pos2) {
-        super(pos1, pos2);
+
+    @Override
+    public Box intersection(Box box) {
+        return super.intersection(box);
     }
 }

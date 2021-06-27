@@ -24,16 +24,16 @@ public class AbstractVesselModel<T extends AbstractVesselEntity> extends EntityM
     // TODO: Cull all blocks not visible. Also get stuff like chests rendering properly
     @Override
     public void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
-        VertexConsumerProvider vertexConsumerProvider = MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers();
-
-        for (Map.Entry<BlockPos, BlockState> relativePos : entity.getRelativeVesselBlockPositions().entrySet()) {
-            matrices.push(); {
-                matrices.multiply(Vec3f.POSITIVE_X.getDegreesQuaternion(180));
-                matrices.translate(relativePos.getKey().getX(), relativePos.getKey().getY() - 1.5, relativePos.getKey().getZ());
-                MinecraftClient.getInstance().getBlockRenderManager().renderBlockAsEntity(
-                        relativePos.getValue(), matrices, vertexConsumerProvider, light, overlay);
-            }
-            matrices.pop();
-        }
+//        VertexConsumerProvider vertexConsumerProvider = MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers();
+//
+//        for (Map.Entry<BlockPos, BlockState> relativePos : entity.getRelativeVesselBlockPositions().entrySet()) {
+//            matrices.push(); {
+//                matrices.multiply(Vec3f.POSITIVE_X.getDegreesQuaternion(180));
+//                matrices.translate(relativePos.getKey().getX(), relativePos.getKey().getY() - 1.5, relativePos.getKey().getZ());
+//                MinecraftClient.getInstance().getBlockRenderManager().renderBlockAsEntity(
+//                        relativePos.getValue(), matrices, vertexConsumerProvider, light, overlay);
+//            }
+//            matrices.pop();
+//        }
     }
 }

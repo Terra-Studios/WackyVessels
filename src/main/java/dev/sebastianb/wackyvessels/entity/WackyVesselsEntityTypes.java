@@ -24,7 +24,7 @@ public class WackyVesselsEntityTypes {
 
 
     public static void register() {
-        FabricDefaultAttributeRegistry.register(SUBMARINE_VESSEL, SubmarineVesselEntity.createMobAttributes());
+//        FabricDefaultAttributeRegistry.register(SUBMARINE_VESSEL, SubmarineVesselEntity.createMobAttributes());
     }
 
 }
