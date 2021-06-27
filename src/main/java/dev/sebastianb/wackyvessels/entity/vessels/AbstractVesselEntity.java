@@ -19,6 +19,9 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.snakefangox.worldshell.entity.WorldShellEntity;
+import net.snakefangox.worldshell.entity.WorldShellSettings;
+import net.snakefangox.worldshell.transfer.ConflictSolver;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -26,7 +29,7 @@ import java.util.*;
 /**
  * All new vessels **NEED** to have block model set to display (setModelData). If you want to save block entity contents for future use, use (setBlockEntityLocations)
  */
-public abstract class AbstractVesselEntity extends MobEntity {
+public abstract class AbstractVesselEntity extends WorldShellEntity {
 
     protected EntityDimensionXYZ entityDimensionXYZ;
     protected HashSet<BlockPos> vesselBlockPositions = new HashSet<>();
@@ -130,8 +133,8 @@ public abstract class AbstractVesselEntity extends MobEntity {
         }
     }
 
-    public AbstractVesselEntity(EntityType<? extends MobEntity> entityType, World world) {
-        super(entityType, world);
+    public AbstractVesselEntity(EntityType<SubmarineVesselEntity> entityType, World world) {
+        super(entityType, world, new WorldShellSettings.Builder(true, true).setConflictSolver(ConflictSolver.HARDNESS).build());
         this.noClip = false;
     }
 
@@ -205,22 +208,22 @@ public abstract class AbstractVesselEntity extends MobEntity {
         }
     }
 
-    @Override
-    public boolean damage(DamageSource source, float amount) {
-        if (0 >= this.getHealth() - amount) {
-            tryDisassemble();
-        }
-
-        return super.damage(source, amount);
-    }
+//    @Override
+//    public boolean damage(DamageSource source, float amount) {
+//        if (0 >= this.getHealth() - amount) {
+//            tryDisassemble();
+//        }
+//
+//        return super.damage(source, amount);
+//    }
 
     // just in-case the above method doesn't work
-    @Override
-    protected void onKilledBy(@Nullable LivingEntity adversary) {
-        if (adversary != null)
-            tryDisassemble();
-        super.onKilledBy(adversary);
-    }
+//    @Override
+//    protected void onKilledBy(@Nullable LivingEntity adversary) {
+//        if (adversary != null)
+//            tryDisassemble();
+//        super.onKilledBy(adversary);
+//    }
 
     public void tryDisassemble() {
         this.remove(RemovalReason.DISCARDED);
@@ -250,10 +253,10 @@ public abstract class AbstractVesselEntity extends MobEntity {
         return true;
     }
 
-    @Override
-    public void takeKnockback(double strength, double x, double z) {
-        super.takeKnockback(0, 0, 0);
-    }
+//    @Override
+//    public void takeKnockback(double strength, double x, double z) {
+//        super.takeKnockback(0, 0, 0);
+//    }
 
     public Map<BlockPos, BlockState> getRelativeVesselBlockPositions() {
         return dataTracker.get(VESSEL_MODEL_DATA);
@@ -292,8 +295,8 @@ public abstract class AbstractVesselEntity extends MobEntity {
         dataTracker.set(ENTITY_DIMENSION_XYZ, entityDimensionXYZ);
     }
 
-    @Override
-    public boolean cannotDespawn() {
-        return true;
-    }
+//    @Override
+//    public boolean cannotDespawn() {
+//        return true;
+//    }
 }

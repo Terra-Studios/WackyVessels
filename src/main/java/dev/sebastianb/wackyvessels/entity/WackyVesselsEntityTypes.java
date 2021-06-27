@@ -10,21 +10,24 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
+import net.snakefangox.worldshell.entity.WorldShellEntityType;
 
 public class WackyVesselsEntityTypes {
 
     public static final EntityType<SubmarineVesselEntity> SUBMARINE_VESSEL
-            = Registry.register(
-            Registry.ENTITY_TYPE,
-            new Identifier(Constants.MOD_ID, Constants.Entity.SUBMARINE_VESSEL),
-            FabricEntityTypeBuilder.create(SpawnGroup.MISC, SubmarineVesselEntity::new)
-                    .dimensions(EntityDimensionXYZ.changing(1, 1)).trackRangeBlocks(100).trackedUpdateRate(1).build()
+            = new WorldShellEntityType<>(SubmarineVesselEntity::new);
 
-    );
+//            Registry.register(
+//            Registry.ENTITY_TYPE,
+//            new Identifier(Constants.MOD_ID, Constants.Entity.SUBMARINE_VESSEL),
+//            FabricEntityTypeBuilder.create(SpawnGroup.MISC, SubmarineVesselEntity::new)
+//                    .dimensions(EntityDimensionXYZ.changing(1, 1)).trackRangeBlocks(100).trackedUpdateRate(1).build()
+//
+//    );
 
 
     public static void register() {
-        FabricDefaultAttributeRegistry.register(SUBMARINE_VESSEL, SubmarineVesselEntity.createMobAttributes());
+
     }
 
 }

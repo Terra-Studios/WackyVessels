@@ -8,7 +8,9 @@ import net.minecraft.world.World;
 import java.util.HashSet;
 
 public class SubmarineVesselEntity extends AbstractVesselEntity {
-    public SubmarineVesselEntity(EntityType<? extends MobEntity> entityType, World world) {
+
+    public SubmarineVesselEntity(EntityType<SubmarineVesselEntity> entityType, World world) {
         super(entityType, world);
     }
+
 }

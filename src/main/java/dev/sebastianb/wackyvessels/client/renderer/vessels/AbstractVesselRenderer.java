@@ -7,21 +7,13 @@ import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.MobEntityRenderer;
 import net.minecraft.screen.PlayerScreenHandler;
 import net.minecraft.util.Identifier;
+import net.snakefangox.worldshell.client.WorldShellEntityRenderer;
 
-public abstract class AbstractVesselRenderer<T extends AbstractVesselEntity, Q extends AbstractVesselModel<T>> extends MobEntityRenderer<T, Q> {
+public abstract class AbstractVesselRenderer<S extends AbstractVesselEntity> extends WorldShellEntityRenderer<AbstractVesselEntity> {
     public AbstractVesselRenderer(EntityRendererFactory.Context context) {
-        super(context, (Q) new AbstractVesselModel(), 1);
+        super(context);
         this.shadowRadius = 0;
     }
 
-    @Override
-    public Identifier getTexture(AbstractVesselEntity entity) {
-        return PlayerScreenHandler.BLOCK_ATLAS_TEXTURE;
-    }
-
-    @Override
-    public boolean shouldRender(T mobEntity, Frustum frustum, double d, double e, double f) {
-        return true;
-    }
 
 }
