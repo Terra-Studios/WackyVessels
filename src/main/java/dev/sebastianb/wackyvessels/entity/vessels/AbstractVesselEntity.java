@@ -1,6 +1,7 @@
 package dev.sebastianb.wackyvessels.entity.vessels;
 
 import dev.sebastianb.wackyvessels.SebaUtils;
+import dev.sebastianb.wackyvessels.collision.VesselBoxDelegate;
 import dev.sebastianb.wackyvessels.entity.dimensions.EntityDimensionXYZ;
 import dev.sebastianb.wackyvessels.network.WackyVesselsTrackedData;
 import net.minecraft.block.Block;
@@ -18,6 +19,7 @@ import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
@@ -142,6 +144,7 @@ public abstract class AbstractVesselEntity extends MobEntity {
         this.setModelData(vesselBlockPositions, helmBlockPos);
         this.setBlockEntityLocations(vesselBlockPositions, helmBlockPos);
 
+        // TODO: Save this to entity
         // let's find the entity size
         HashSet<BlockPos> relBlockPos = new HashSet<>();
         for (Map.Entry<BlockPos, BlockState> blockPosBlockStateEntry : getRelativeVesselBlockPositions().entrySet()) {
@@ -205,23 +208,6 @@ public abstract class AbstractVesselEntity extends MobEntity {
         }
     }
 
-    @Override
-    public boolean damage(DamageSource source, float amount) {
-        if (0 >= this.getHealth() - amount) {
-            tryDisassemble();
-        }
-
-        return super.damage(source, amount);
-    }
-
-    // just in-case the above method doesn't work
-    @Override
-    protected void onKilledBy(@Nullable LivingEntity adversary) {
-        if (adversary != null)
-            tryDisassemble();
-        super.onKilledBy(adversary);
-    }
-
     public void tryDisassemble() {
         this.remove(RemovalReason.DISCARDED);
         for (Map.Entry<BlockPos, BlockState> m : this.getRelativeVesselBlockPositions().entrySet()) {
@@ -246,6 +232,45 @@ public abstract class AbstractVesselEntity extends MobEntity {
     }
 
     @Override
+    public Box getBoundingBox() {
+        // TODO: Save this to entity
+        // let's find the entity size
+        HashSet<BlockPos> relBlockPos = new HashSet<>();
+        for (Map.Entry<BlockPos, BlockState> blockPosBlockStateEntry : getRelativeVesselBlockPositions().entrySet()) {
+            relBlockPos.add(blockPosBlockStateEntry.getKey());
+        }
+        // get the relative minimum and max corner
+        BlockPos smallCorner = SebaUtils.MathUtils.getSmallestBlockPos(relBlockPos);
+        BlockPos bigCorner = SebaUtils.MathUtils.getLargestBlockPos(relBlockPos);
+
+        return new VesselBoxDelegate(new Box(
+                this.getPos().add(bigCorner.getX() + 1, bigCorner.getY() + 1, bigCorner.getZ() + 1),
+                this.getPos().add(smallCorner.getX(),smallCorner.getY(),smallCorner.getZ())));
+    }
+
+    @Override
+    public boolean isCollidable() {
+        return false;
+    }
+
+    @Override
+    public boolean damage(DamageSource source, float amount) {
+        if (0 >= this.getHealth() - amount) {
+            tryDisassemble();
+        }
+
+        return super.damage(source, amount);
+    }
+
+    // just in-case the above method doesn't work
+    @Override
+    protected void onKilledBy(@Nullable LivingEntity adversary) {
+        if (adversary != null)
+            tryDisassemble();
+        super.onKilledBy(adversary);
+    }
+
+    @Override
     public boolean hasNoGravity() {
         return true;
     }
@@ -267,8 +292,6 @@ public abstract class AbstractVesselEntity extends MobEntity {
     public EntityDimensions getDimensions(EntityPose pose) {
         return getDataTracker().get(ENTITY_DIMENSION_XYZ);
     }
-
-
 
     public EntityDimensionXYZ getDimensionsXYZ() {
         return dataTracker.get(ENTITY_DIMENSION_XYZ);

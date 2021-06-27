@@ -3,3 +3,7 @@ accessWidener	v1	 named
 mutable    field    net/minecraft/client/gui/screen/ingame/HandledScreen    playerInventoryTitle    Lnet/minecraft/text/Text;
 accessible    field    net/minecraft/client/render/entity/EntityRenderer    shadowRadius    F
 accessible    field    net/minecraft/entity/Entity    dimensions    Lnet/minecraft/entity/EntityDimensions;
+mutable field net/minecraft/entity/Entity dimensions Lnet/minecraft/entity/EntityDimensions;
+
+extendable method net/minecraft/entity/Entity getBoundingBox ()Lnet/minecraft/util/math/Box;
+accessible method net/minecraft/util/shape/VoxelShape <init> (Lnet/minecraft/util/shape/VoxelSet;)V

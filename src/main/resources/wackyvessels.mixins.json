@@ -4,6 +4,7 @@
   "package": "dev.sebastianb.wackyvessels.mixin",
   "compatibilityLevel": "JAVA_16",
   "mixins": [
+    "MixinBox",
     "MixinEntity"
   ],
   "client": [
