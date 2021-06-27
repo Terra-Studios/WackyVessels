@@ -40,6 +40,7 @@ public class WackyVesselsPackets {
                     sub.setPosition(SebaUtils.MathUtils.blockPosToVec3d(vesselHelmLocation));
                     serverWorld.spawnEntity(sub);
 
+
                     vesselBlockPositions.add(vesselHelmLocation); // reads the helm and adds again for deletion
                     for (BlockPos pos : vesselBlockPositions) {
                         serverWorld.removeBlockEntity(pos);

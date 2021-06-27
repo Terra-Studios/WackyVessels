@@ -14,6 +14,7 @@ import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.vehicle.BoatEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.network.Packet;
@@ -262,35 +263,29 @@ public abstract class AbstractVesselEntity extends Entity {
     }
 
     @Override
-    public boolean damage(DamageSource source, float amount) {
-        tryDisassemble();
-
-        return super.damage(source, amount);
-    }
-
-    // just in-case the above method doesn't work
-//    @Override
-//    protected void onKilledBy(@Nullable LivingEntity adversary) {
-//        if (adversary != null)
-//            tryDisassemble();
-//        super.onKilledBy(adversary);
-//    }
-
-    @Override
-    public boolean hasNoGravity() {
+    public boolean collides() { // Required to interact with the entity
         return true;
     }
 
     @Override
-    public void tick() {
-        super.tick();
-        for (PlayerEntity p : world.getPlayers()) {
-            if (p.getBlockPos().isWithinDistance(this.getBlockPos(), 5)) {
-                if (p.handSwinging) {
-                    tryDisassemble(); // test method to disassemble
-                }
-            }
+    public ActionResult interact(PlayerEntity player, Hand hand) {
+        if (this.getPassengerList().isEmpty()) {
+            player.startRiding(this);
+            return ActionResult.SUCCESS;
         }
+
+        return ActionResult.FAIL;
+    }
+
+    @Override
+    public boolean damage(DamageSource source, float amount) {
+        tryDisassemble(); // test method for disassemble
+        return super.damage(source, amount);
+    }
+
+    @Override
+    public boolean hasNoGravity() {
+        return true;
     }
 
     public Map<BlockPos, BlockState> getRelativeVesselBlockPositions() {
@@ -328,8 +323,4 @@ public abstract class AbstractVesselEntity extends Entity {
         dataTracker.set(ENTITY_DIMENSION_XYZ, entityDimensionXYZ);
     }
 
-//    @Override
-//    public boolean cannotDespawn() {
-//        return true;
-//    }
 }
