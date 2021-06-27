@@ -42,13 +42,13 @@ public abstract class AbstractVesselEntity extends WorldShellEntity {
 
     private static final TrackedData<Map<BlockPos, BlockState>> VESSEL_MODEL_DATA = WackyVesselsTrackedData.VESSEL_MODEL_DATA;
     private static final TrackedData<Map<BlockPos, BlockEntity>> VESSEL_BLOCK_ENTITY_DATA = WackyVesselsTrackedData.VESSEL_BLOCK_ENTITY_DATA;
-    private static final TrackedData<EntityDimensionXYZ> ENTITY_DIMENSION_XYZ = WackyVesselsTrackedData.ENTITY_DIMENSION_XYZ;
+//    private static final TrackedData<EntityDimensionXYZ> ENTITY_DIMENSION_XYZ = WackyVesselsTrackedData.ENTITY_DIMENSION_XYZ;
 
     static {
         TrackedDataHandlerRegistry.register(VESSEL_MODEL_DATA.getType());
         TrackedDataHandlerRegistry.register(VESSEL_BLOCK_ENTITY_DATA.getType());
         assert TrackedDataHandlerRegistry.getId(VESSEL_BLOCK_ENTITY_DATA.getType()) != -1;
-        TrackedDataHandlerRegistry.register(ENTITY_DIMENSION_XYZ.getType());
+//        TrackedDataHandlerRegistry.register(ENTITY_DIMENSION_XYZ.getType());
     }
 
     public static void initClass() { //need to register ^ somehow it doesent normally??
@@ -77,12 +77,12 @@ public abstract class AbstractVesselEntity extends WorldShellEntity {
                             nbt.getInt("BlockEntityRelPosZ" + "_" + i)
                     ), blockEntity);
         }
-        float length = nbt.getFloat("length");
-        float width = nbt.getFloat("width");
-        float height = nbt.getFloat("height");
+//        float length = nbt.getFloat("length");
+//        float width = nbt.getFloat("width");
+//        float height = nbt.getFloat("height");
         setRelativeVesselBlockPositions(this.relativeVesselBlockPositions);
         setRelativeVesselBlockEntity(this.relativeVesselBlockEntity);
-        setEntityDimensionXYZ(new EntityDimensionXYZ(length,height,width, false));
+//        setEntityDimensionXYZ(new EntityDimensionXYZ(length,height,width, false));
     }
 
     @Override
@@ -110,9 +110,9 @@ public abstract class AbstractVesselEntity extends WorldShellEntity {
             i++;
         }
 
-        nbt.putFloat("length", this.entityDimensionXYZ.length);
-        nbt.putFloat("width", this.entityDimensionXYZ.width);
-        nbt.putFloat("height", this.entityDimensionXYZ.height);
+//        nbt.putFloat("length", this.entityDimensionXYZ.length);
+//        nbt.putFloat("width", this.entityDimensionXYZ.width);
+//        nbt.putFloat("height", this.entityDimensionXYZ.height);
 
     }
 
@@ -123,14 +123,14 @@ public abstract class AbstractVesselEntity extends WorldShellEntity {
                 put(new BlockPos(0,0,0), Blocks.GOLD_BLOCK.getDefaultState()); // init data tracker
         }});
         dataTracker.startTracking(VESSEL_BLOCK_ENTITY_DATA, new HashMap<>());
-        dataTracker.startTracking(ENTITY_DIMENSION_XYZ, new EntityDimensionXYZ(1,1,1, false));
+//        dataTracker.startTracking(ENTITY_DIMENSION_XYZ, new EntityDimensionXYZ(1,1,1, false));
     }
 
     @Override
     public void onTrackedDataSet(TrackedData<?> data) {
-        if (ENTITY_DIMENSION_XYZ.equals(data)) {
-            dimensions = getDataTracker().get(ENTITY_DIMENSION_XYZ);
-        }
+//        if (ENTITY_DIMENSION_XYZ.equals(data)) {
+//            dimensions = getDataTracker().get(ENTITY_DIMENSION_XYZ);
+//        }
     }
 
     public AbstractVesselEntity(EntityType<SubmarineVesselEntity> entityType, World world) {
@@ -154,14 +154,13 @@ public abstract class AbstractVesselEntity extends WorldShellEntity {
         BlockPos smallCorner = SebaUtils.MathUtils.getSmallestBlockPos(relBlockPos);
         BlockPos bigCorner = SebaUtils.MathUtils.getLargestBlockPos(relBlockPos);
 
-        // set dimensions of vessel
-        this.setEntityDimensionXYZ(new EntityDimensionXYZ(
-                bigCorner.getX() - smallCorner.getX() + 1,
-                bigCorner.getY() - smallCorner.getY() + 1,
-                bigCorner.getZ() - smallCorner.getZ() + 1,
-                false
-        ));
-
+//        // set dimensions of vessel
+//        this.setEntityDimensionXYZ(new EntityDimensionXYZ(
+//                bigCorner.getX() - smallCorner.getX() + 1,
+//                bigCorner.getY() - smallCorner.getY() + 1,
+//                bigCorner.getZ() - smallCorner.getZ() + 1,
+//                false
+//        ));
 
     }
 
@@ -266,16 +265,14 @@ public abstract class AbstractVesselEntity extends WorldShellEntity {
         return dataTracker.get(VESSEL_BLOCK_ENTITY_DATA);
     }
 
-    @Override
-    public EntityDimensions getDimensions(EntityPose pose) {
-        return getDataTracker().get(ENTITY_DIMENSION_XYZ);
-    }
-
-
-
-    public EntityDimensionXYZ getDimensionsXYZ() {
-        return dataTracker.get(ENTITY_DIMENSION_XYZ);
-    }
+//    @Override
+//    public EntityDimensions getDimensions(EntityPose pose) {
+//        return getDataTracker().get(ENTITY_DIMENSION_XYZ);
+//    }
+//
+//    public EntityDimensionXYZ getDimensionsXYZ() {
+//        return dataTracker.get(ENTITY_DIMENSION_XYZ);
+//    }
 
     public void setRelativeVesselBlockPositions(Map<BlockPos, BlockState> relativeVesselBlockPositions) {
         this.relativeVesselBlockPositions = relativeVesselBlockPositions;
@@ -289,11 +286,11 @@ public abstract class AbstractVesselEntity extends WorldShellEntity {
         dataTracker.set(VESSEL_BLOCK_ENTITY_DATA, relativeVesselBlockEntity);
     }
 
-    public void setEntityDimensionXYZ(EntityDimensionXYZ entityDimensionXYZ) {
-        this.dimensions = entityDimensionXYZ;
-        this.entityDimensionXYZ = entityDimensionXYZ;
-        dataTracker.set(ENTITY_DIMENSION_XYZ, entityDimensionXYZ);
-    }
+//    public void setEntityDimensionXYZ(EntityDimensionXYZ entityDimensionXYZ) {
+//        this.dimensions = entityDimensionXYZ;
+//        this.entityDimensionXYZ = entityDimensionXYZ;
+//        dataTracker.set(ENTITY_DIMENSION_XYZ, entityDimensionXYZ);
+//    }
 
 //    @Override
 //    public boolean cannotDespawn() {

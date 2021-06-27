@@ -1,5 +1,6 @@
 package dev.sebastianb.wackyvessels.network;
 
+import dev.sebastianb.wackyvessels.BlockScan;
 import dev.sebastianb.wackyvessels.Constants;
 import dev.sebastianb.wackyvessels.SebaUtils;
 import dev.sebastianb.wackyvessels.client.gui.VesselHelmScreenHandler;
@@ -12,6 +13,7 @@ import net.minecraft.text.LiteralText;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3i;
+import net.snakefangox.worldshell.transfer.WorldShellConstructor;
 
 import java.util.HashSet;
 
@@ -31,19 +33,24 @@ public class WackyVesselsPackets {
 
                 if (player.currentScreenHandler instanceof VesselHelmScreenHandler && (((VesselHelmScreenHandler) player.currentScreenHandler).getPos().isWithinDistance(playerLocation, 10))) { // to prevent malicious actors from messing with my clientside cod 😡 😡 😡
                     BlockPos vesselHelmLocation = ((VesselHelmScreenHandler) player.currentScreenHandler).getPos();
+//
+//                    vesselBlockPositions.add(vesselHelmLocation); // starting block added to vessel
+//                    checkSurroundingBlocks(serverWorld, vesselHelmLocation, true);
 
-                    vesselBlockPositions.add(vesselHelmLocation); // starting block added to vessel
-                    checkSurroundingBlocks(serverWorld, vesselHelmLocation, true);
+//                    SubmarineVesselEntity sub = new SubmarineVesselEntity(WackyVesselsEntityTypes.SUBMARINE_VESSEL, serverWorld);
+                    WorldShellConstructor<SubmarineVesselEntity> airshipConstructor =
+                            WorldShellConstructor.create(serverWorld, WackyVesselsEntityTypes.SUBMARINE_VESSEL, vesselHelmLocation, new BlockScan(vesselHelmLocation, serverWorld));
 
-                    SubmarineVesselEntity sub = new SubmarineVesselEntity(WackyVesselsEntityTypes.SUBMARINE_VESSEL, serverWorld);
-                    sub.setPosition(SebaUtils.MathUtils.blockPosToVec3d(vesselHelmLocation));
-                    sub.setSetModelDataAndBlockEntityLocations(vesselBlockPositions, vesselHelmLocation);
-                    serverWorld.spawnEntity(sub);
-                    vesselBlockPositions.add(vesselHelmLocation); // reads the helm and adds again for deletion
-                    for (BlockPos pos : vesselBlockPositions) {
-                        serverWorld.removeBlockEntity(pos);
-                        serverWorld.removeBlock(pos, true);
-                    }
+                    airshipConstructor.construct();
+
+//                    sub.setPosition(SebaUtils.MathUtils.blockPosToVec3d(vesselHelmLocation));
+//                    sub.setSetModelDataAndBlockEntityLocations(vesselBlockPositions, vesselHelmLocation);
+//                    serverWorld.spawnEntity(sub);
+//                    vesselBlockPositions.add(vesselHelmLocation); // reads the helm and adds again for deletion
+//                    for (BlockPos pos : vesselBlockPositions) {
+//                        serverWorld.removeBlockEntity(pos);
+//                        serverWorld.removeBlock(pos, true);
+//                    }
                     player.closeHandledScreen();
                 } else {
                     player.networkHandler.disconnect(new LiteralText("NO CHEATING!!!")); // I already handled this but u never know + this line of code is funny
