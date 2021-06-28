@@ -1,6 +1,7 @@
 package dev.sebastianb.wackyvessels.entity.vessels;
 
 import dev.sebastianb.wackyvessels.SebaUtils;
+import dev.sebastianb.wackyvessels.block.WackyVesselsBlocks;
 import dev.sebastianb.wackyvessels.collision.VesselBoxDelegate;
 import dev.sebastianb.wackyvessels.entity.dimensions.EntityDimensionXYZ;
 import dev.sebastianb.wackyvessels.network.WackyVesselsTrackedData;
@@ -11,10 +12,9 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.*;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.TrackedData;
+import net.minecraft.entity.data.TrackedDataHandler;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
-import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.vehicle.BoatEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.network.Packet;
@@ -23,10 +23,7 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraft.world.entity.EntityChangeListener;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -38,8 +35,10 @@ public abstract class AbstractVesselEntity extends Entity {
     protected EntityDimensionXYZ entityDimensionXYZ;
     protected HashSet<BlockPos> vesselBlockPositions = new HashSet<>();
 
-    protected Map<BlockPos, BlockState> relativeVesselBlockPositions = new HashMap<>(); // coords of each block relative to helm
-    protected Map<BlockPos, BlockEntity> relativeVesselBlockEntity = new HashMap<>(); // coords of each block entity (like chests) relative to helm
+    protected Map<BlockPos, BlockState>     relativeVesselBlockPositions    = new HashMap<>(); // coords of each block relative to helm
+    protected Map<BlockPos, BlockEntity>    relativeVesselBlockEntity       = new HashMap<>(); // coords of each block entity (like chests) relative to helm
+    protected Map<BlockPos, BlockState>     relativeVesselChairPositions    = new HashMap<>(); // coords of each useable seat relative to helm
+    protected Map<BlockPos, BlockState>     masterChairRelPosition          = new HashMap<>(); // coords for the master chair relative to helm
 
     protected boolean setModelData = false;
 
@@ -48,11 +47,16 @@ public abstract class AbstractVesselEntity extends Entity {
     private static final TrackedData<Map<BlockPos, BlockEntity>> VESSEL_BLOCK_ENTITY_DATA = WackyVesselsTrackedData.VESSEL_BLOCK_ENTITY_DATA;
     private static final TrackedData<EntityDimensionXYZ> ENTITY_DIMENSION_XYZ = WackyVesselsTrackedData.ENTITY_DIMENSION_XYZ;
 
+    private static final TrackedData<Map<BlockPos, BlockState>> VESSEL_CHAIR_DATA = WackyVesselsTrackedData.VESSEL_CHAIR_POS;
+    private static final TrackedDataHandler<BlockPos> VESSEL_MASTER_CHAIR = TrackedDataHandlerRegistry.BLOCK_POS;
+
     static {
         TrackedDataHandlerRegistry.register(VESSEL_MODEL_DATA.getType());
         TrackedDataHandlerRegistry.register(VESSEL_BLOCK_ENTITY_DATA.getType());
         assert TrackedDataHandlerRegistry.getId(VESSEL_BLOCK_ENTITY_DATA.getType()) != -1;
         TrackedDataHandlerRegistry.register(ENTITY_DIMENSION_XYZ.getType());
+        TrackedDataHandlerRegistry.register(VESSEL_CHAIR_DATA.getType());
+        TrackedDataHandlerRegistry.register(VESSEL_MASTER_CHAIR);
     }
 
     public static void initClass() { //need to register ^ somehow it doesent normally??
@@ -81,6 +85,18 @@ public abstract class AbstractVesselEntity extends Entity {
                             nbt.getInt("BlockEntityRelPosZ" + "_" + i)
                     ), blockEntity);
         }
+
+        int relChairLocationSize = nbt.getInt("RelChairLocationArraySize");
+        for (int i = 1; i <= relChairLocationSize; i++) {
+            this.relativeVesselChairPositions.put(
+                    new BlockPos(
+                            nbt.getInt("ChairRelPosX" + "_" + i),
+                            nbt.getInt("ChairRelPosY" + "_" + i),
+                            nbt.getInt("ChairRelPosZ" + "_" + i)
+                    ), Block.getStateFromRawId(nbt.getInt("BlockState" + "_" + i))
+            );
+        }
+
         float length = nbt.getFloat("length");
         float width = nbt.getFloat("width");
         float height = nbt.getFloat("height");
@@ -113,6 +129,16 @@ public abstract class AbstractVesselEntity extends Entity {
             nbt.put("BlockEntity" + "_" + i, data);
             i++;
         }
+        i = 1;
+        nbt.putInt("RelChairLocationArraySize", this.relativeVesselChairPositions.size());
+        for (Map.Entry<BlockPos, BlockState> posChairEntry : this.relativeVesselChairPositions.entrySet()) {
+            nbt.putInt("ChairRelPosX" + "_" + i, posChairEntry.getKey().getX());
+            nbt.putInt("ChairRelPosY" + "_" + i, posChairEntry.getKey().getY());
+            nbt.putInt("ChairRelPosZ" + "_" + i, posChairEntry.getKey().getZ());
+
+            nbt.putInt("BlockState" + "_" + i, Block.getRawIdFromState(posChairEntry.getValue()));
+            i++;
+        }
 
         nbt.putFloat("length", this.entityDimensionXYZ.length);
         nbt.putFloat("width", this.entityDimensionXYZ.width);
@@ -122,11 +148,13 @@ public abstract class AbstractVesselEntity extends Entity {
 
     @Override
     protected void initDataTracker() {
-//        super.initDataTracker();
         dataTracker.startTracking(VESSEL_MODEL_DATA, new HashMap<>() {{
-                put(new BlockPos(0,0,0), Blocks.GOLD_BLOCK.getDefaultState()); // init data tracker
+                put(BlockPos.ORIGIN, Blocks.GOLD_BLOCK.getDefaultState()); // init data tracker
         }});
         dataTracker.startTracking(VESSEL_BLOCK_ENTITY_DATA, new HashMap<>());
+        dataTracker.startTracking(VESSEL_CHAIR_DATA, new HashMap<>() {{
+            put(BlockPos.ORIGIN, WackyVesselsBlocks.VESSEL_CHAIR.getDefaultState());
+        }});
         dataTracker.startTracking(ENTITY_DIMENSION_XYZ, new EntityDimensionXYZ(1,1,1, false));
     }
 
@@ -159,7 +187,12 @@ public abstract class AbstractVesselEntity extends Entity {
         HashSet<BlockPos> relBlockPos = new HashSet<>();
         for (Map.Entry<BlockPos, BlockState> blockPosBlockStateEntry : getRelativeVesselBlockPositions().entrySet()) {
             relBlockPos.add(blockPosBlockStateEntry.getKey());
+            if (blockPosBlockStateEntry.getValue().getBlock().getDefaultState() == WackyVesselsBlocks.VESSEL_CHAIR.getDefaultState()) {
+                this.relativeVesselChairPositions.put(blockPosBlockStateEntry.getKey(), blockPosBlockStateEntry.getValue());
+                // set all chairs inside the vessel
+            }
         }
+        this.setRelativeVesselChairPositions(relativeVesselChairPositions); // syncs with server the relative chairs
         // get the relative minimum and max corner
         BlockPos smallCorner = SebaUtils.MathUtils.getSmallestBlockPos(relBlockPos);
         BlockPos bigCorner = SebaUtils.MathUtils.getLargestBlockPos(relBlockPos);
@@ -251,7 +284,6 @@ public abstract class AbstractVesselEntity extends Entity {
         // get the relative minimum and max corner
         BlockPos smallCorner = SebaUtils.MathUtils.getSmallestBlockPos(relBlockPos);
         BlockPos bigCorner = SebaUtils.MathUtils.getLargestBlockPos(relBlockPos);
-
         return new VesselBoxDelegate(new Box(
                 this.getPos().add(bigCorner.getX() + 1, bigCorner.getY() + 1, bigCorner.getZ() + 1),
                 this.getPos().add(smallCorner.getX(),smallCorner.getY(),smallCorner.getZ())));
@@ -317,6 +349,10 @@ public abstract class AbstractVesselEntity extends Entity {
         return dataTracker.get(ENTITY_DIMENSION_XYZ);
     }
 
+    public Map<BlockPos, BlockState> getRelativeVesselChairPositions() {
+        return dataTracker.get(VESSEL_CHAIR_DATA);
+    }
+
     public void setRelativeVesselBlockPositions(Map<BlockPos, BlockState> relativeVesselBlockPositions) {
         this.relativeVesselBlockPositions = relativeVesselBlockPositions;
         dataTracker.set(VESSEL_MODEL_DATA, Collections.emptyMap()); // maps are mutable
@@ -335,4 +371,10 @@ public abstract class AbstractVesselEntity extends Entity {
         dataTracker.set(ENTITY_DIMENSION_XYZ, entityDimensionXYZ);
     }
 
+    public void setRelativeVesselChairPositions(Map<BlockPos, BlockState> relativeVesselChairPositions) {
+        this.relativeVesselChairPositions = relativeVesselChairPositions;
+        dataTracker.set(VESSEL_CHAIR_DATA, Collections.emptyMap()); // maps are mutable
+        dataTracker.set(VESSEL_CHAIR_DATA, relativeVesselChairPositions);
+
+    }
 }

@@ -20,7 +20,34 @@ import java.util.Map;
 
 public class WackyVesselsTrackedData {
 
+    // TODO: Make the following two variables some sort of factory data tracker
     public static final TrackedData<Map<BlockPos, BlockState>> VESSEL_MODEL_DATA = DataTracker.registerData(AbstractVesselEntity.class, new TrackedDataHandler<>() {
+        @Override
+        public void write(PacketByteBuf buf, Map<BlockPos, BlockState> value) {
+            buf.writeInt(value.size());
+            for (Map.Entry<BlockPos, BlockState> e : value.entrySet()) {
+                buf.writeLong(e.getKey().asLong());
+                buf.writeInt(Block.getRawIdFromState(e.getValue()));
+            }
+        }
+
+        @Override
+        public Map<BlockPos, BlockState> read(PacketByteBuf buf) {
+            int size = buf.readInt();
+            Map<BlockPos, BlockState> map = new HashMap<>(size);
+            for (int i = 0; i < size; i++) {
+                map.put(BlockPos.fromLong(buf.readLong()), Block.getStateFromRawId(buf.readInt()));
+            }
+            return map;
+        }
+
+        @Override
+        public Map<BlockPos, BlockState> copy(Map<BlockPos, BlockState> value) {
+            return new HashMap<>(value);
+        }
+    });
+
+    public static final TrackedData<Map<BlockPos, BlockState>> VESSEL_CHAIR_POS = DataTracker.registerData(AbstractVesselEntity.class, new TrackedDataHandler<>() {
         @Override
         public void write(PacketByteBuf buf, Map<BlockPos, BlockState> value) {
             buf.writeInt(value.size());
