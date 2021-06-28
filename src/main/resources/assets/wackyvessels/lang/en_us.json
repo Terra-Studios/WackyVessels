@@ -1,5 +1,10 @@
 {
   "itemGroup.wackyvessels.blocks": "WackyVessels",
   "block.wackyvessels.vessel_helm": "Vessel Helm",
-  "entity.wackyvessels.submarine_vessel": "Submarine Vessel"
+  "block.wackyvessels.vessel_chair": "Vessel Chair",
+  "entity.wackyvessels.submarine_vessel": "Submarine Vessel",
+
+  "gui.wackyvessels.assemble": "Assemble"
+
+
 }

@@ -101,7 +101,14 @@ public class SitEntity extends Entity {
         if (this.hasPassenger(passenger)) {
             passenger.setPos(this.getX() + 0.5, this.getY() - 0.2, this.getZ() + 0.5);
             passenger.setBodyYaw(getDirection().getOpposite().asRotation());
+            // TODO: Maybe fix someone being able to completely turn their head lol. Prob figure out why model spazzed out when moving instead of adjusting body yaw
         }
+    }
+
+    @Override
+    public ActionResult interact(PlayerEntity player, Hand hand) {
+        this.remove(RemovalReason.DISCARDED); // just incase someone is dumb and manually spawns
+        return super.interact(player, hand);
     }
 
     @Override

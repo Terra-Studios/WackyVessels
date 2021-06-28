@@ -12,6 +12,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 
 @Environment(EnvType.CLIENT)
 public class VesselHelmScreen extends HandledScreen<VesselHelmScreenHandler> {
@@ -31,7 +32,7 @@ public class VesselHelmScreen extends HandledScreen<VesselHelmScreenHandler> {
 
     // will display if the vessel assembles / disassembles
     private void addAssemblyButton() {
-        this.addDrawableChild(new ButtonWidget(this.width / 2 - 100, 196, 200, 20, ScreenTexts.DONE, (button) -> {
+        this.addDrawableChild(new ButtonWidget(this.width / 2 - 100, 196, 200, 20, new TranslatableText("gui.wackyvessels.assemble"), (button) -> {
             // sends the location of helm to server for verification and creation
 
             ClientPlayNetworking.send(Constants.Packets.VESSEL_HELM_MOUNT, PacketByteBufs.empty());
