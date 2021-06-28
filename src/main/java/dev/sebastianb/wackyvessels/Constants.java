@@ -1,34 +1,31 @@
 package dev.sebastianb.wackyvessels;
 
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 
-public class Constants {
+public interface Constants {
 
-    public static String MOD_ID = "wackyvessels";
+    String MOD_ID = "wackyvessels";
 
-    public static class Entity {
-        public static String SUBMARINE_VESSEL = "submarine_vessel";
-        public static String SIT_ENTITY = "sit_entity";
-
+    interface Entity {
+        String SUBMARINE_VESSEL = "submarine_vessel";
+        String SIT_ENTITY = "sit_entity";
     }
 
-    public static class Blocks {
-        public static String VESSEL_HELM = "vessel_helm";
-        public static String VESSEL_CHAIR = "vessel_chair";
-
+    interface Blocks {
+        String CONSOLE = "console";
+        String VESSEL_HELM = "vessel_helm";
+        String VESSEL_CHAIR = "vessel_chair";
     }
 
-    public static class Text {
-        public static class Screen {
-            public static String ASSEMBLY_BUTTON = MOD_ID + ".gui.helm.assembly";
-            public static String DISASSEMBLY_BUTTON = MOD_ID + ".gui.helm.disassembly";
-
+    interface Text {
+        interface Screen {
+            TranslatableText ASSEMBLY_BUTTON = new TranslatableText(String.format("gui.%s.assemble", MOD_ID));
+            String DISASSEMBLY_BUTTON = MOD_ID + ".gui.helm.disassembly";
         }
     }
 
-    public static class Packets {
-        public static Identifier VESSEL_HELM_MOUNT = new Identifier(MOD_ID, "vessel_helm_mount");
+    interface Packets {
+        Identifier VESSEL_HELM_MOUNT = new Identifier(MOD_ID, "vessel_helm_mount");
     }
-
-
 }

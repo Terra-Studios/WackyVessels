@@ -84,5 +84,4 @@ public class WackyVesselsPackets {
             checkSurroundingBlocks(world, pos, false);
         }
     }
-
 }

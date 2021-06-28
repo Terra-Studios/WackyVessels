@@ -23,9 +23,5 @@ public class WackyVesselsBlockEntities {
         return build;
     }
 
-    public static void register() {
-
-    }
-
-
+    public static void register() {}
 }

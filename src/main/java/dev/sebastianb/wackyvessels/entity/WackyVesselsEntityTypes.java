@@ -3,10 +3,8 @@ package dev.sebastianb.wackyvessels.entity;
 import dev.sebastianb.wackyvessels.Constants;
 import dev.sebastianb.wackyvessels.entity.dimensions.EntityDimensionXYZ;
 import dev.sebastianb.wackyvessels.entity.vessels.SubmarineVesselEntity;
-import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
 import net.minecraft.util.Identifier;
@@ -32,9 +30,7 @@ public class WackyVesselsEntityTypes {
 
     );
 
-
     public static void register() {
-//        FabricDefaultAttributeRegistry.register(SUBMARINE_VESSEL, SubmarineVesselEntity.createMobAttributes());
+        // FabricDefaultAttributeRegistry.register(SUBMARINE_VESSEL, SubmarineVesselEntity.createMobAttributes());
     }
-
 }

@@ -5,14 +5,12 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.minecraft.client.gui.screen.ScreenTexts;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 
 @Environment(EnvType.CLIENT)
 public class VesselHelmScreen extends HandledScreen<VesselHelmScreenHandler> {
@@ -32,15 +30,11 @@ public class VesselHelmScreen extends HandledScreen<VesselHelmScreenHandler> {
 
     // will display if the vessel assembles / disassembles
     private void addAssemblyButton() {
-        this.addDrawableChild(new ButtonWidget(this.width / 2 - 100, 196, 200, 20, new TranslatableText("gui.wackyvessels.assemble"), (button) -> {
+        this.addDrawableChild(new ButtonWidget(this.width / 2 - 100, 196, 200, 20, Constants.Text.Screen.ASSEMBLY_BUTTON, (button) -> {
             // sends the location of helm to server for verification and creation
-
             ClientPlayNetworking.send(Constants.Packets.VESSEL_HELM_MOUNT, PacketByteBufs.empty());
-
         }));
     }
-
-
 
     @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
@@ -52,5 +46,4 @@ public class VesselHelmScreen extends HandledScreen<VesselHelmScreenHandler> {
     protected void drawBackground(MatrixStack matrices, float delta, int mouseX, int mouseY) {
         // this.renderBackground(matrices);
     }
-
 }

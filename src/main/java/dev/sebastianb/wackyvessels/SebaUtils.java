@@ -6,7 +6,6 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 
 import java.util.Collection;
-import java.util.List;
 
 public class SebaUtils {
 
@@ -52,7 +51,5 @@ public class SebaUtils {
             }
             return bigCorner;
         }
-
     }
-
 }

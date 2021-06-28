@@ -19,5 +19,4 @@ public class WackyVessels implements ModInitializer {
         WackyVesselsPackets.register();
         AbstractVesselEntity.initClass();
     }
-
 }

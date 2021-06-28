@@ -5,7 +5,6 @@ import dev.sebastianb.wackyvessels.block.helm.VesselHelm;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
 import net.minecraft.block.Material;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
@@ -22,6 +21,10 @@ public class WackyVesselsBlocks {
             new Identifier(Constants.MOD_ID, "blocks"))
             .icon(() -> new ItemStack(WackyVesselsBlocks.VESSEL_HELM)).build();
 
+    public static final Block CONSOLE =
+            registerBlock(new Block(
+                            FabricBlockSettings.of(Material.METAL).strength(5.0F, 6.0F).sounds(BlockSoundGroup.WOOD)),
+                    Constants.Blocks.CONSOLE);
 
     public static final Block VESSEL_HELM =
             registerBlock(new VesselHelm(
@@ -34,11 +37,7 @@ public class WackyVesselsBlocks {
                             Constants.Blocks.VESSEL_CHAIR
                     );
 
-
-
-    public static void register() {
-
-    }
+    public static void register() {}
 
     private static <T extends Block> T registerBlock(T block, String id) {
         return registerBlock(block, id, BLOCKS_GROUP);

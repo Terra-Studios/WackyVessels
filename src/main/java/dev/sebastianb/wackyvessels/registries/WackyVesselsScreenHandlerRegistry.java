@@ -13,9 +13,5 @@ public class WackyVesselsScreenHandlerRegistry {
     public static ScreenHandlerType<? extends VesselHelmScreenHandler> VESSEL_HELM_SCREEN =
             ScreenHandlerRegistry.registerExtended(identifier, VesselHelmScreenHandler::new);
 
-
-    public static void register() {
-
-    }
-
+    public static void register() {}
 }

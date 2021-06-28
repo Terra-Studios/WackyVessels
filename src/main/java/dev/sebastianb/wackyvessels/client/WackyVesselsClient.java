@@ -10,6 +10,5 @@ public class WackyVesselsClient implements ClientModInitializer {
     public void onInitializeClient() {
         WackyVesselsClientEntityRegister.register();
         WackyVesselsScreenRegistry.registerScreens();
-
     }
 }

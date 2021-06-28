@@ -28,5 +28,4 @@ public class EntityDimensionXYZ extends EntityDimensions {
         if (Float.compare(that.height, height) != 0) return false;
         return fixed == that.fixed;
     }
-
 }

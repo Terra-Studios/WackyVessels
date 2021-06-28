@@ -1,6 +1,5 @@
 package dev.sebastianb.wackyvessels.collision;
 
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 
 /**
@@ -11,7 +10,6 @@ public class VesselBoxDelegate extends Box {
     public VesselBoxDelegate(Box box) {
         super(box.minX, box.minY, box.minZ, box.maxX, box.maxY, box.maxZ);
     }
-
 
     @Override
     public Box intersection(Box box) {

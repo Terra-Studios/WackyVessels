@@ -38,5 +38,4 @@ public class VesselHelmEntity extends BlockEntity implements ExtendedScreenHandl
     public void writeScreenOpeningData(ServerPlayerEntity player, PacketByteBuf buf) {
         buf.writeBlockPos(pos);
     }
-
 }

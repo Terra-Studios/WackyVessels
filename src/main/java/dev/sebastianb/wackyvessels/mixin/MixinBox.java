@@ -16,7 +16,6 @@ public class MixinBox {
         if (box instanceof VesselBoxDelegate) {
             // doesn't work rn but I wanna cancel vanillas system for our own
             cir.setReturnValue(false);
-
         }
     }
 }
