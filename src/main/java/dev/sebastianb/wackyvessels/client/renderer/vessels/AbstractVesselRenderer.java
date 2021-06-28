@@ -13,6 +13,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.screen.PlayerScreenHandler;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Quaternion;
 
 import java.util.Map;
 
@@ -36,6 +37,10 @@ public abstract class AbstractVesselRenderer<T extends AbstractVesselEntity, Q e
     @Override
     public void render(T entity, float yaw, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light) {
         VertexConsumerProvider vertexConsumerProvider = MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers();
+
+        Quaternion rotation = new Quaternion(entity.getYaw(), -entity.getPitch(), 0, true);
+
+        matrices.multiply(rotation);
 
         for (Map.Entry<BlockPos, BlockState> relativePos : entity.getRelativeVesselBlockPositions().entrySet()) {
             matrices.push(); {
