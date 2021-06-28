@@ -100,6 +100,7 @@ public class SitEntity extends Entity {
     public void updatePassengerPosition(Entity passenger) {
         if (this.hasPassenger(passenger)) {
             passenger.setPos(this.getX() + 0.5, this.getY() - 0.2, this.getZ() + 0.5);
+            passenger.setBodyYaw(getDirection().getOpposite().asRotation());
         }
     }
 
