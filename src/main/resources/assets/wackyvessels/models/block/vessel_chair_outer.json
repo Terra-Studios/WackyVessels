@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/outer_stairs",
+  "textures": {
+    "bottom": "wackyvessels:block/vessel_chair",
+    "top": "wackyvessels:block/vessel_chair",
+    "side": "wackyvessels:block/vessel_chair"
+  }
+}

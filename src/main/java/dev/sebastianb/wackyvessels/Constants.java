@@ -8,10 +8,14 @@ public class Constants {
 
     public static class Entity {
         public static String SUBMARINE_VESSEL = "submarine_vessel";
+        public static String SIT_ENTITY = "sit_entity";
+
     }
 
     public static class Blocks {
         public static String VESSEL_HELM = "vessel_helm";
+        public static String VESSEL_CHAIR = "vessel_chair";
+
     }
 
     public static class Text {

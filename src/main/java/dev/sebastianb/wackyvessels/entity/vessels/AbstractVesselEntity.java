@@ -284,6 +284,18 @@ public abstract class AbstractVesselEntity extends Entity {
     }
 
     @Override
+    public double getMountedHeightOffset() {
+        return 0;
+    }
+
+    @Override
+    public void updatePassengerPosition(Entity passenger) {
+        if (this.hasPassenger(passenger)) {
+            passenger.setPos(this.getX(), this.getY(), this.getZ() - 1);
+        }
+    }
+
+    @Override
     public boolean hasNoGravity() {
         return true;
     }
