@@ -36,8 +36,9 @@ public class WackyVesselsPackets {
                     checkSurroundingBlocks(serverWorld, vesselHelmLocation, true);
 
                     SubmarineVesselEntity sub = new SubmarineVesselEntity(WackyVesselsEntityTypes.SUBMARINE_VESSEL, serverWorld);
-                    sub.setSetModelDataAndBlockEntityLocations(vesselBlockPositions, vesselHelmLocation);
                     sub.setPosition(SebaUtils.MathUtils.blockPosToVec3d(vesselHelmLocation));
+                    sub.setSetModelDataAndBlockEntityLocations(vesselBlockPositions, vesselHelmLocation);
+//                    sub.setPosition(SebaUtils.MathUtils.blockPosToVec3d(vesselHelmLocation));
                     serverWorld.spawnEntity(sub);
 
 
