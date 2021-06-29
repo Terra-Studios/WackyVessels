@@ -1,6 +1,7 @@
 package dev.sebastianb.wackyvessels.block;
 
 import dev.sebastianb.wackyvessels.Constants;
+import dev.sebastianb.wackyvessels.block.decoration.Console;
 import dev.sebastianb.wackyvessels.block.helm.VesselHelm;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
@@ -16,13 +17,12 @@ import net.minecraft.util.registry.Registry;
 
 public class WackyVesselsBlocks {
 
-    //ITEM GROUPS
     public static final ItemGroup BLOCKS_GROUP = FabricItemGroupBuilder.create(
             new Identifier(Constants.MOD_ID, "blocks"))
             .icon(() -> new ItemStack(WackyVesselsBlocks.VESSEL_HELM)).build();
 
     public static final Block CONSOLE =
-            registerBlock(new Block(
+            registerBlock(new Console(
                             FabricBlockSettings.of(Material.METAL).strength(5.0F, 6.0F).sounds(BlockSoundGroup.WOOD)),
                     Constants.Blocks.CONSOLE);
 
@@ -50,5 +50,4 @@ public class WackyVesselsBlocks {
         item.appendBlocks(Item.BLOCK_ITEMS, item);
         return block;
     }
-
 }

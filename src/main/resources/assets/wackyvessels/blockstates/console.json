@@ -1,5 +1,8 @@
 {
-  "multipart": [
-    {"apply": {"model": "wackyvessels:block/console" }}
-  ]
+  "variants": {
+    "facing=north": {"model": "wackyvessels:block/console", "y":   0},
+    "facing=east":  {"model": "wackyvessels:block/console", "y":  90},
+    "facing=south": {"model": "wackyvessels:block/console", "y": 180},
+    "facing=west":  {"model": "wackyvessels:block/console", "y": 270}
+  }
 }
