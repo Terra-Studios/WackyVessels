@@ -14,6 +14,7 @@ public interface Constants {
 
     interface Blocks {
         String CONSOLE = "console";
+        String WHEEL = "wheel";
         String VESSEL_HELM = "vessel_helm";
         String VESSEL_CHAIR = "vessel_chair";
     }

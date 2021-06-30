@@ -2,6 +2,7 @@ package dev.sebastianb.wackyvessels.block;
 
 import dev.sebastianb.wackyvessels.Constants;
 import dev.sebastianb.wackyvessels.block.decoration.Console;
+import dev.sebastianb.wackyvessels.block.decoration.Wheel;
 import dev.sebastianb.wackyvessels.block.helm.VesselHelm;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
@@ -19,12 +20,17 @@ public class WackyVesselsBlocks {
 
     public static final ItemGroup BLOCKS_GROUP = FabricItemGroupBuilder.create(
             new Identifier(Constants.MOD_ID, "blocks"))
-            .icon(() -> new ItemStack(WackyVesselsBlocks.VESSEL_HELM)).build();
+            .icon(() -> new ItemStack(WackyVesselsBlocks.CONSOLE)).build();
 
     public static final Block CONSOLE =
             registerBlock(new Console(
-                            FabricBlockSettings.of(Material.METAL).strength(5.0F, 6.0F).sounds(BlockSoundGroup.WOOD)),
+                            FabricBlockSettings.of(Material.METAL).strength(5.0F, 6.0F).sounds(BlockSoundGroup.METAL)),
                     Constants.Blocks.CONSOLE);
+
+    public static final Block WHEEL =
+            registerBlock(new Wheel(
+                            FabricBlockSettings.of(Material.METAL).strength(5.0F, 6.0F).sounds(BlockSoundGroup.METAL)),
+                    Constants.Blocks.WHEEL);
 
     public static final Block VESSEL_HELM =
             registerBlock(new VesselHelm(
