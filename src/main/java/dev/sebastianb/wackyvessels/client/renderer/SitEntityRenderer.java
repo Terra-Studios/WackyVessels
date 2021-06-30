@@ -1,6 +1,5 @@
 package dev.sebastianb.wackyvessels.client.renderer;
 
-import dev.sebastianb.wackyvessels.entity.SitEntity;
 import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.entity.Entity;
