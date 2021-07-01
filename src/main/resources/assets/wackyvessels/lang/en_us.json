@@ -1,6 +1,7 @@
 {
   "itemGroup.wackyvessels.blocks": "WackyVessels",
   "block.wackyvessels.console": "Console",
+  "block.wackyvessels.wheel": "Wheel",
   "block.wackyvessels.vessel_helm": "Vessel Helm",
   "block.wackyvessels.vessel_chair": "Vessel Chair",
   "entity.wackyvessels.submarine_vessel": "Submarine Vessel",

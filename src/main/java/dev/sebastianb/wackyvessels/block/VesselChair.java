@@ -2,13 +2,9 @@ package dev.sebastianb.wackyvessels.block;
 
 import dev.sebastianb.wackyvessels.entity.SitEntity;
 import dev.sebastianb.wackyvessels.entity.WackyVesselsEntityTypes;
-import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.StairsBlock;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.passive.PigEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;

@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "facing=north": {"model": "wackyvessels:block/wheel", "x":  90, "y":   0},
+    "facing=east":  {"model": "wackyvessels:block/wheel", "x":  90, "y":  90},
+    "facing=south": {"model": "wackyvessels:block/wheel", "x":  90, "y": 180},
+    "facing=west":  {"model": "wackyvessels:block/wheel", "x":  90, "y": 270},
+    "facing=up":    {"model": "wackyvessels:block/wheel", "x":   0, "y":  90},
+    "facing=down":  {"model": "wackyvessels:block/wheel", "x": 180, "y":  90}
+  }
+}
