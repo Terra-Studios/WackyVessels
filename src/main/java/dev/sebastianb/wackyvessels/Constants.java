@@ -8,7 +8,7 @@ public interface Constants {
     String MOD_ID = "wackyvessels";
 
     interface Entity {
-        String SUBMARINE_VESSEL = "submarine_vessel";
+        String AIRSHIP_VESSEL = "airship_vessel";
         String SIT_ENTITY = "sit_entity";
     }
 

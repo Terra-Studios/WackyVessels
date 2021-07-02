@@ -4,7 +4,7 @@ import dev.sebastianb.wackyvessels.Constants;
 import dev.sebastianb.wackyvessels.SebaUtils;
 import dev.sebastianb.wackyvessels.client.gui.VesselHelmScreenHandler;
 import dev.sebastianb.wackyvessels.entity.WackyVesselsEntityTypes;
-import dev.sebastianb.wackyvessels.entity.vessels.SubmarineVesselEntity;
+import dev.sebastianb.wackyvessels.entity.vessels.AirshipVesselEntity;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.Blocks;
 import net.minecraft.server.world.ServerWorld;
@@ -35,7 +35,7 @@ public class WackyVesselsPackets {
                     vesselBlockPositions.add(vesselHelmLocation); // starting block added to vessel
                     checkSurroundingBlocks(serverWorld, vesselHelmLocation, true);
 
-                    SubmarineVesselEntity sub = new SubmarineVesselEntity(WackyVesselsEntityTypes.SUBMARINE_VESSEL, serverWorld);
+                    AirshipVesselEntity sub = new AirshipVesselEntity(WackyVesselsEntityTypes.AIRSHIP_VESSEL_ENTITY, serverWorld);
                     sub.setPosition(SebaUtils.MathUtils.blockPosToVec3d(vesselHelmLocation));
                     sub.setSetModelDataAndBlockEntityLocations(vesselBlockPositions, vesselHelmLocation);
 //                    sub.setPosition(SebaUtils.MathUtils.blockPosToVec3d(vesselHelmLocation));

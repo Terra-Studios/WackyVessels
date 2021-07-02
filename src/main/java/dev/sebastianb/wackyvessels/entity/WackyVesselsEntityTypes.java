@@ -2,7 +2,7 @@ package dev.sebastianb.wackyvessels.entity;
 
 import dev.sebastianb.wackyvessels.Constants;
 import dev.sebastianb.wackyvessels.entity.dimensions.EntityDimensionXYZ;
-import dev.sebastianb.wackyvessels.entity.vessels.SubmarineVesselEntity;
+import dev.sebastianb.wackyvessels.entity.vessels.AirshipVesselEntity;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -12,11 +12,11 @@ import net.minecraft.util.registry.Registry;
 
 public class WackyVesselsEntityTypes {
 
-    public static final EntityType<SubmarineVesselEntity> SUBMARINE_VESSEL
+    public static final EntityType<AirshipVesselEntity> AIRSHIP_VESSEL_ENTITY
             = Registry.register(
             Registry.ENTITY_TYPE,
-            new Identifier(Constants.MOD_ID, Constants.Entity.SUBMARINE_VESSEL),
-            FabricEntityTypeBuilder.create(SpawnGroup.MISC, SubmarineVesselEntity::new)
+            new Identifier(Constants.MOD_ID, Constants.Entity.AIRSHIP_VESSEL),
+            FabricEntityTypeBuilder.create(SpawnGroup.MISC, AirshipVesselEntity::new)
                     .dimensions(EntityDimensionXYZ.changing(1, 1)).trackRangeBlocks(100).trackedUpdateRate(1).build()
 
     );
