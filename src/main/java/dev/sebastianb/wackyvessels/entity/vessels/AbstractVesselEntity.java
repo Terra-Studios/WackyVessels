@@ -192,7 +192,7 @@ public abstract class AbstractVesselEntity extends Entity {
         return new EntitySpawnS2CPacket(this);
     }
 
-    public AbstractVesselEntity(EntityType<SubmarineVesselEntity> entityType, World world) { // TODO: better abstract this
+    public AbstractVesselEntity(EntityType entityType, World world) {
         super(entityType, world);
         this.noClip = false;
     }
