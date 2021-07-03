@@ -5,8 +5,13 @@ import dev.sebastianb.wackyvessels.SebaUtils;
 import dev.sebastianb.wackyvessels.client.gui.VesselHelmScreenHandler;
 import dev.sebastianb.wackyvessels.entity.WackyVesselsEntityTypes;
 import dev.sebastianb.wackyvessels.entity.vessels.AirshipVesselEntity;
+import io.netty.buffer.Unpooled;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.Blocks;
+import net.minecraft.entity.Entity;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.math.BlockPos;
@@ -14,6 +19,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3i;
 
 import java.util.HashSet;
+import java.util.UUID;
 
 public class WackyVesselsPackets {
 
@@ -53,6 +59,25 @@ public class WackyVesselsPackets {
                 }
             }));
         }));
+        ServerPlayNetworking.registerGlobalReceiver(Constants.Packets.VESSEL_INPUT_PACKET, ((server, player, handler, buf, responseSender) -> {
+            boolean left = buf.readBoolean();
+            boolean right = buf.readBoolean();
+            boolean up = buf.readBoolean();
+            boolean down = buf.readBoolean();
+            boolean forward = buf.readBoolean();
+            boolean back = buf.readBoolean();
+
+            int id = buf.readInt();
+
+            server.execute(() -> {
+                Entity entity = player.world.getEntityById(id);
+                if (entity instanceof AirshipVesselEntity) {
+                    AirshipVesselEntity airship = (AirshipVesselEntity) entity;
+
+                    airship.setInput(left, right, up, down, forward, back);
+                }
+            });
+        }));
     }
 
     private static int vesselBlockSize = 0;
@@ -84,5 +109,20 @@ public class WackyVesselsPackets {
         for (BlockPos pos : validAroundBlocks) {
             checkSurroundingBlocks(world, pos, false);
         }
+    }
+
+    public static void sendVesselInputPacket(AirshipVesselEntity entity, boolean left, boolean right, boolean up, boolean down, boolean forward, boolean back) {
+        PacketByteBuf buffer = PacketByteBufs.create();
+
+        buffer.writeBoolean(left);
+        buffer.writeBoolean(right);
+        buffer.writeBoolean(up);
+        buffer.writeBoolean(down);
+        buffer.writeBoolean(forward);
+        buffer.writeBoolean(back);
+
+        buffer.writeInt(entity.getId());
+
+        ClientPlayNetworking.send(Constants.Packets.VESSEL_INPUT_PACKET, buffer);
     }
 }

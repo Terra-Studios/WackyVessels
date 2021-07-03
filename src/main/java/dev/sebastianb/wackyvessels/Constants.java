@@ -28,5 +28,6 @@ public interface Constants {
 
     interface Packets {
         Identifier VESSEL_HELM_MOUNT = new Identifier(MOD_ID, "vessel_helm_mount");
+        Identifier VESSEL_INPUT_PACKET = new Identifier(MOD_ID, "vessel_input_packet");
     }
 }

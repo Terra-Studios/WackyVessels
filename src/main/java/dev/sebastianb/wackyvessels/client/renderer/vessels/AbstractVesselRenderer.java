@@ -38,7 +38,8 @@ public abstract class AbstractVesselRenderer<T extends AbstractVesselEntity, Q e
     public void render(T entity, float yaw, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light) {
         VertexConsumerProvider vertexConsumerProvider = MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers();
 
-        Quaternion rotation = new Quaternion(entity.getPitch(), entity.getYaw(), 0, true);
+
+        Quaternion rotation = new Quaternion(entity.getPitch(), entity.getYaw(), entity.getPitch(), true);// TODO: pitch doesn't work
 
         matrices.translate(.5, 0, .5);
         matrices.multiply(rotation);

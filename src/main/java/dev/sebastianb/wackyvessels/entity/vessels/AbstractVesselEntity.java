@@ -33,6 +33,7 @@ import net.minecraft.util.TypeFilter;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -185,6 +186,12 @@ public abstract class AbstractVesselEntity extends Entity {
         if (ENTITY_DIMENSION_XYZ.equals(data)) {
             dimensions = getDataTracker().get(ENTITY_DIMENSION_XYZ);
         }
+    }
+
+    @Nullable
+    @Override
+    public Entity getPrimaryPassenger() {
+        return this.getFirstPassenger();
     }
 
     @Override
