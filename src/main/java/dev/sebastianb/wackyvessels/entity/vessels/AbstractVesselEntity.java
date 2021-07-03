@@ -24,13 +24,16 @@ import net.minecraft.nbt.NbtHelper;
 import net.minecraft.network.Packet;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
 import net.minecraft.predicate.entity.EntityPredicates;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
+import net.minecraft.util.BlockRotation;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypeFilter;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -185,12 +188,18 @@ public abstract class AbstractVesselEntity extends Entity {
         }
     }
 
+    @Nullable
+    @Override
+    public Entity getPrimaryPassenger() {
+        return this.getFirstPassenger();
+    }
+
     @Override
     public Packet<?> createSpawnPacket() {
         return new EntitySpawnS2CPacket(this);
     }
 
-    public AbstractVesselEntity(EntityType<SubmarineVesselEntity> entityType, World world) { // TODO: better abstract this
+    public AbstractVesselEntity(EntityType entityType, World world) {
         super(entityType, world);
         this.noClip = false;
     }
@@ -301,14 +310,56 @@ public abstract class AbstractVesselEntity extends Entity {
 
     public void tryDisassemble() {
         this.remove(RemovalReason.DISCARDED);
+
+        int direction = Math.round(-this.getYaw() / 90.0f) + 4;
+        direction = direction % 4;
+
         for (Map.Entry<BlockPos, BlockState> m : this.getRelativeVesselBlockPositions().entrySet()) {
-            world.setBlockState(m.getKey().add(this.getBlockPos()), m.getValue());
+
+            BlockRotation rotation;
+            switch (direction) {
+                case 1:
+                    rotation = BlockRotation.CLOCKWISE_90;
+                    break;
+                case 2:
+                    rotation = BlockRotation.CLOCKWISE_180;
+                    break;
+                case 3:
+                    rotation = BlockRotation.COUNTERCLOCKWISE_90;
+                    break;
+                default:
+                    rotation = BlockRotation.NONE;
+            }
+
+            BlockPos pos = m.getKey().rotate(rotation);
+
+            BlockState state = m.getValue().rotate(rotation);
+
+            world.setBlockState(pos.add(this.getBlockPos()), state);
         }
 
         for (Map.Entry<BlockPos, BlockEntity> blockEntityWithRelPos : this.getRelativeVesselBlockEntity().entrySet()) {
+
+            BlockRotation rotation;
+            switch (direction) {
+                case 1:
+                    rotation = BlockRotation.CLOCKWISE_90;
+                    break;
+                case 2:
+                    rotation = BlockRotation.CLOCKWISE_180;
+                    break;
+                case 3:
+                    rotation = BlockRotation.COUNTERCLOCKWISE_90;
+                    break;
+                default:
+                    rotation = BlockRotation.NONE;
+            }
+
             NbtCompound data = blockEntityWithRelPos.getValue().writeNbt(new NbtCompound());
-            BlockPos blockEntityRelPos = blockEntityWithRelPos.getKey().multiply(-1);
+
+            BlockPos blockEntityRelPos = blockEntityWithRelPos.getKey().rotate(rotation).multiply(-1);
             BlockPos newBlockEntityLocation = this.getBlockPos().subtract(blockEntityRelPos);
+
             data.putInt("x", newBlockEntityLocation.getX());
             data.putInt("y", newBlockEntityLocation.getY());
             data.putInt("z", newBlockEntityLocation.getZ());
@@ -318,7 +369,6 @@ public abstract class AbstractVesselEntity extends Entity {
             world.addBlockEntity(newBlockEntity);
 
             newBlockEntity.markDirty();
-
         }
     }
 
@@ -350,6 +400,11 @@ public abstract class AbstractVesselEntity extends Entity {
 
     @Override
     public ActionResult interact(PlayerEntity player, Hand hand) {
+        if (player.isSneaking()) { //test for rotations
+            this.setRotation(this.getYaw()+ 90, this.getPitch());
+            return ActionResult.SUCCESS;
+        }
+
         if (this.getPassengerList().isEmpty()) {
             player.startRiding(this);
             return ActionResult.SUCCESS;

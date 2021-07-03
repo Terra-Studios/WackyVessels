@@ -8,7 +8,7 @@ public interface Constants {
     String MOD_ID = "wackyvessels";
 
     interface Entity {
-        String SUBMARINE_VESSEL = "submarine_vessel";
+        String AIRSHIP_VESSEL = "airship_vessel";
         String SIT_ENTITY = "sit_entity";
     }
 
@@ -28,5 +28,6 @@ public interface Constants {
 
     interface Packets {
         Identifier VESSEL_HELM_MOUNT = new Identifier(MOD_ID, "vessel_helm_mount");
+        Identifier VESSEL_INPUT_PACKET = new Identifier(MOD_ID, "vessel_input_packet");
     }
 }
