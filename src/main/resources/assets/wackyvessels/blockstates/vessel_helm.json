@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": {"model": "wackyvessels:block/vessel_helm", "y":   0},
+    "facing=east":  {"model": "wackyvessels:block/vessel_helm", "y":  90},
+    "facing=south": {"model": "wackyvessels:block/vessel_helm", "y": 180},
+    "facing=west":  {"model": "wackyvessels:block/vessel_helm", "y": 270}
+  }
+}
