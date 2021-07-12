@@ -5,8 +5,7 @@
   "compatibilityLevel": "JAVA_16",
   "mixins": [
     "MixinBox",
-    "MixinEntity",
-    "MixinClientPlayerEntity"
+    "MixinEntity"
   ],
   "client": [
   ],

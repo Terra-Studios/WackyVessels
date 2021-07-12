@@ -14,6 +14,8 @@ import net.minecraft.screen.PlayerScreenHandler;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Quaternion;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.Vec3f;
 
 import java.util.Map;
 
@@ -39,13 +41,13 @@ public abstract class AbstractVesselRenderer<T extends AbstractVesselEntity, Q e
         VertexConsumerProvider vertexConsumerProvider = MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers();
 
 
-        Quaternion rotation = new Quaternion(entity.getPitch(), entity.getYaw(), entity.getPitch(), true);// TODO: pitch doesn't work
 
         matrices.translate(.5, 0, .5);
+        Quaternion rotation = Vec3f.POSITIVE_Y.getDegreesQuaternion(yaw);
+        rotation.hamiltonProduct(Vec3f.POSITIVE_X.getDegreesQuaternion(entity.getPitch()));
+
         matrices.multiply(rotation);
         matrices.translate(-.5, 0, -.5);
-
-
 
         for (Map.Entry<BlockPos, BlockState> relativePos : entity.getRelativeVesselBlockPositions().entrySet()) {
             matrices.push(); {
