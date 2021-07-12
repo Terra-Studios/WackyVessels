@@ -6,5 +6,8 @@
   "block.wackyvessels.vessel_chair": "Vessel Chair",
   "entity.wackyvessels.airship_vessel": "Airship Vessel",
   "entity.wackyvessels.submarine_vessel": "Submarine Vessel",
-  "gui.wackyvessels.assemble": "Assemble"
+  "gui.wackyvessels.assemble": "Assemble",
+
+  "catagory.wackyvessels.main": "Wacky Vessels",
+  "key.wackyvessels.down": "Move Vessel Down"
 }
