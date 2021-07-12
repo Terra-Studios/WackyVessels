@@ -4,6 +4,7 @@
   "block.wackyvessels.wheel": "Wheel",
   "block.wackyvessels.vessel_helm": "Vessel Helm",
   "block.wackyvessels.vessel_chair": "Vessel Chair",
+  "entity.wackyvessels.airship_vessel": "Airship Vessel",
   "entity.wackyvessels.submarine_vessel": "Submarine Vessel",
   "gui.wackyvessels.assemble": "Assemble"
 }

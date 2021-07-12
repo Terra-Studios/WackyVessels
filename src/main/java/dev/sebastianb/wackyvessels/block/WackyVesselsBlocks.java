@@ -20,7 +20,7 @@ public class WackyVesselsBlocks {
 
     public static final ItemGroup BLOCKS_GROUP = FabricItemGroupBuilder.create(
             new Identifier(Constants.MOD_ID, "blocks"))
-            .icon(() -> new ItemStack(WackyVesselsBlocks.CONSOLE)).build();
+            .icon(() -> new ItemStack(WackyVesselsBlocks.VESSEL_HELM)).build();
 
     public static final Block CONSOLE =
             registerBlock(new Console(
