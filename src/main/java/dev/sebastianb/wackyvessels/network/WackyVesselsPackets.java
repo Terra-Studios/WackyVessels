@@ -2,10 +2,11 @@ package dev.sebastianb.wackyvessels.network;
 
 import dev.sebastianb.wackyvessels.Constants;
 import dev.sebastianb.wackyvessels.SebaUtils;
+import dev.sebastianb.wackyvessels.WackyVessels;
+import dev.sebastianb.wackyvessels.block.WackyVesselsBlocks;
 import dev.sebastianb.wackyvessels.client.gui.VesselHelmScreenHandler;
 import dev.sebastianb.wackyvessels.entity.WackyVesselsEntityTypes;
 import dev.sebastianb.wackyvessels.entity.vessels.AirshipVesselEntity;
-import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -19,7 +20,6 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3i;
 
 import java.util.HashSet;
-import java.util.UUID;
 
 public class WackyVesselsPackets {
 
@@ -96,7 +96,7 @@ public class WackyVesselsPackets {
         }
         HashSet<BlockPos> validAroundBlocks = new HashSet<>(); // surronding blocks that are valid to be changed
         for (Direction pos : Direction.values()) {
-            if (world.getBlockState(blockBeingHandled.add(SebaUtils.MathUtils.directionToVec3I(pos))).getBlock() != Blocks.AIR) {
+            if (!WackyVessels.MATERIAL_BLACKLIST.contains(world.getBlockState(blockBeingHandled.add(SebaUtils.MathUtils.directionToVec3I(pos))).getBlock())) {
                 Vec3i currentBlockHandled = SebaUtils.MathUtils.directionToVec3I(pos).add(blockBeingHandled); // Grabs all blocks around the specified block
                 if (!vesselBlockPositions.contains(new BlockPos(currentBlockHandled))) {
                     vesselBlockPositions.add(new BlockPos(currentBlockHandled));

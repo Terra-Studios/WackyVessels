@@ -35,4 +35,8 @@ public interface Constants {
         String CATEGORY = "category." + MOD_ID + ".main";
         String DOWN = "key." + MOD_ID + ".down";
     }
+
+    interface Tags {
+        Identifier MATERIAL_BLACKLIST = new Identifier(MOD_ID, "material_blacklist");
+    }
 }
